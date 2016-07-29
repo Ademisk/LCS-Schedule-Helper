@@ -1,0 +1,1235 @@
+<html>
+	<head>
+		<script src="lib/jquery-2.2.2.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="css/popup.css"/>
+		<script type="text/javascript" src="js/popup.js"></script>
+		<script type="text/javascript" src="js/utils.js"></script>
+	</head>
+	<body>
+		<div style="width:600px;height:500px">
+			<div id="league_select" class="leagueSelect">
+				<div id="eu" style="float:left;width:297px;border:solid 1px grey">EU LCS</div>
+				<div id="na" style="float:left;width:297px;border:solid 1px grey">NA LCS</div>
+			</div>
+			<div id="schedule">
+				<div id="week_select">
+					<div class="week">Week:</div>
+					<span id="week1_select">1</span>
+					<span id="week2_select">2</span>
+					<span id="week3_select">3</span>
+					<span id="week4_select">4</span>
+					<span id="week5_select">5</span>
+					<span id="week6_select">6</span>
+					<span id="week7_select">7</span>
+					<span id="week8_select">8</span>
+					<span id="week9_select">9</span>
+				</div>
+				<div id="week" class="weekContainer">
+					<div id="day1" class="naDay euDay">
+						<div id="date" class="date"></div>
+						<div id="match1" class="naMatch euMatch">
+							<div id="matchHeader" class="matchHeader">
+								<div id="matchTime" class="matchTime"></div>
+								<div id="gamesTab" class="gamesTab">
+									<div id="matchOverview" class="gameOverview selected naGame euGame">All</div>
+									<div id="game1" class="gameTab unselected naGame euGame">1</div>
+									<div id="game2" class="gameTab unselected naGame euGame">2</div>
+									<div id="game3" class="gameTab unselected naGame">3</div>
+								</div>
+								<div id="results"></div>
+								<div id="team_fantasy_points"></div>
+								<a href="" target="_blank" id="game_stream" class="vodLink button"></a>
+							</div>
+
+							<img id="team1_icon" class="teamIcon" />
+							<div id="team1_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+
+							<div class="vs">vs.</div>
+
+							<img id="team2_icon" class="teamIcon" />
+							<div id="team2_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+						</div>
+						<div id="match2" class="naMatch euMatch">
+							<div id="matchHeader" class="matchHeader">
+								<div id="matchTime" class="matchTime"></div>
+								<div id="gamesTab" class="gamesTab">
+									<div id="matchOverview" class="gameOverview selected naGame euGame">All</div>
+									<div id="game1" class="gameTab unselected naGame euGame">1</div>
+									<div id="game2" class="gameTab unselected naGame euGame">2</div>
+									<div id="game3" class="gameTab unselected naGame">3</div>
+								</div>
+								<div id="results"></div>
+								<div id="team_fantasy_points"></div>
+								<a href="" target="_blank" id="game_stream" class="vodLink button"></a>
+							</div>
+
+							<img id="team1_icon" class="teamIcon" />
+							<div id="team1_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+
+							<div class="vs">vs.</div>
+
+							<img id="team2_icon" class="teamIcon" />
+							<div id="team2_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+
+
+						</div>
+						<div id="match3" class="euMatch">
+							<div id="matchHeader" class="matchHeader">
+								<div id="matchTime" class="matchTime"></div>
+								<div id="gamesTab" class="gamesTab">
+									<div id="matchOverview" class="gameOverview selected naGame euGame">All</div>
+									<div id="game1" class="gameTab unselected euGame">1</div>
+									<div id="game2" class="gameTab unselected euGame">2</div>
+								</div>
+								<div id="results"></div>
+								<div id="team_fantasy_points"></div>
+								<a href="" target="_blank" id="game_stream" class="vodLink button"></a>
+							</div>
+
+							<img id="team1_icon" class="teamIcon" />
+							<div id="team1_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+
+							<div class="vs">vs.</div>
+
+							<img id="team2_icon" class="teamIcon" />
+							<div id="team2_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+
+
+						</div>
+						<div id="match4" class="euMatch">
+							<div id="matchHeader" class="matchHeader">
+								<div id="matchTime" class="matchTime"></div>
+								<div id="gamesTab" class="gamesTab">
+									<div id="matchOverview" class="gameOverview selected naGame euGame">All</div>
+									<div id="game1" class="gameTab unselected naGame euGame">1</div>
+									<div id="game2" class="gameTab unselected naGame euGame">2</div>
+								</div>
+								<div id="results"></div>
+								<div id="team_fantasy_points"></div>
+								<a href="" target="_blank" id="game_stream" class="vodLink button"></a>
+							</div>
+
+							<img id="team1_icon" class="teamIcon" />
+							<div id="team1_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+
+							<div class="vs">vs.</div>
+
+							<img id="team2_icon" class="teamIcon" />
+							<div id="team2_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+
+
+						</div>
+						<div id="match5" class="euMatch">
+							<div id="matchHeader" class="matchHeader">
+								<div id="matchTime" class="matchTime"></div>
+								<div id="gamesTab" class="gamesTab">
+									<div id="matchOverview" class="gameOverview selected naGame euGame">All</div>
+									<div id="game1" class="gameTab unselected euGame">1</div>
+									<div id="game2" class="gameTab unselected euGame">2</div>
+								</div>
+								<div id="results"></div>
+								<div id="team_fantasy_points"></div>
+								<a href="" target="_blank" id="game_stream" class="vodLink button"></a>
+							</div>
+
+							<img id="team1_icon" class="teamIcon" />
+							<div id="team1_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+
+							<div class="vs">vs.</div>
+
+							<img id="team2_icon" class="teamIcon" />
+							<div id="team2_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+
+
+						</div>
+					</div>
+					<div id="day2" class="naDay euDay">
+						<div id="date" class="date"></div>
+						<div id="match1" class="naMatch euMatch">
+							<div id="matchHeader" class="matchHeader">
+								<div id="matchTime" class="matchTime"></div>
+								<div id="gamesTab" class="gamesTab">
+									<div id="matchOverview" class="gameOverview selected naGame euGame">All</div>
+									<div id="game1" class="gameTab unselected naGame euGame">1</div>
+									<div id="game2" class="gameTab unselected naGame euGame">2</div>
+									<div id="game3" class="gameTab unselected naGame">3</div>
+								</div>
+								<div id="results"></div>
+								<div id="team_fantasy_points"></div>
+								<a href="" target="_blank" id="game_stream" class="vodLink button"></a>
+							</div>
+
+							<img id="team1_icon" class="teamIcon" />
+							<div id="team1_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+
+							<div class="vs">vs.</div>
+
+							<img id="team2_icon" class="teamIcon" />
+							<div id="team2_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+
+
+						</div>
+						<div id="match2" class="naMatch euMatch">
+							<div id="matchHeader" class="matchHeader">
+								<div id="matchTime" class="matchTime"></div>
+								<div id="gamesTab" class="gamesTab">
+									<div id="matchOverview" class="gameOverview selected naGame euGame">All</div>
+									<div id="game1" class="gameTab unselected naGame euGame">1</div>
+									<div id="game2" class="gameTab unselected naGame euGame">2</div>
+									<div id="game3" class="gameTab unselected naGame">3</div>
+								</div>
+								<div id="results"></div>
+								<div id="team_fantasy_points"></div>
+								<a href="" target="_blank" id="game_stream" class="vodLink button"></a>
+							</div>
+
+							<img id="team1_icon" class="teamIcon" />
+							<div id="team1_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+
+							<div class="vs">vs.</div>
+							<img id="team2_icon" class="teamIcon" />
+							<div id="team2_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+
+
+						</div>
+						<div id="match3" class="naMatch euMatch">
+							<div id="matchHeader" class="matchHeader">
+								<div id="matchTime" class="matchTime"></div>
+								<div id="gamesTab" class="gamesTab">
+									<div id="matchOverview" class="gameOverview selected naGame euGame">All</div>
+									<div id="game1" class="gameTab unselected naGame euGame">1</div>
+									<div id="game2" class="gameTab unselected naGame euGame">2</div>
+									<div id="game3" class="gameTab unselected naGame">3</div>
+								</div>
+								<div id="results"></div>
+								<div id="team_fantasy_points"></div>
+								<a href="" target="_blank" id="game_stream" class="vodLink button"></a>
+							</div>
+
+							<img id="team1_icon" class="teamIcon" />
+							<div id="team1_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+
+							<div class="vs">vs.</div>
+
+							<img id="team2_icon" class="teamIcon" />
+							<div id="team2_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+
+
+						</div>
+						<div id="match4" class="naMatch euMatch">
+							<div id="matchHeader" class="matchHeader">
+								<div id="matchTime" class="matchTime"></div>
+								<div id="gamesTab" class="gamesTab">
+									<div id="matchOverview" class="gameOverview selected naGame euGame">All</div>
+									<div id="game1" class="gameTab unselected naGame euGame">1</div>
+									<div id="game2" class="gameTab unselected naGame euGame">2</div>
+									<div id="game3" class="gameTab unselected naGame">3</div>
+								</div>
+								<div id="results"></div>
+								<div id="team_fantasy_points"></div>
+								<a href="" target="_blank" id="game_stream" class="vodLink button"></a>
+							</div>
+
+							<img id="team1_icon" class="teamIcon" />
+							<div id="team1_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+
+							<div class="vs">vs.</div>
+
+							<img id="team2_icon" class="teamIcon" />
+							<div id="team2_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+
+
+						</div>
+						<div id="match5" class="euMatch">
+							<div id="matchHeader" class="matchHeader">
+								<div id="matchTime" class="matchTime"></div>
+								<div id="gamesTab" class="gamesTab">
+									<div id="matchOverview" class="gameOverview selected euGame">All</div>
+									<div id="game1" class="gameTab unselected euGame">1</div>
+									<div id="game2" class="gameTab unselected euGame">2</div>
+								</div>
+								<div id="results"></div>
+								<div id="team_fantasy_points"></div>
+								<a href="" target="_blank" id="game_stream" class="vodLink button"></a>
+							</div>
+
+							<img id="team1_icon" class="teamIcon" />
+							<div id="team1_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+
+							<div class="vs">vs.</div>
+
+							<img id="team2_icon" class="teamIcon" />
+							<div id="team2_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+
+
+						</div>
+					</div>
+					<div id="day3" class="naDay">
+						<div id="date" class="date"></div>
+						<div id="match1" class="naMatch">
+							<div id="matchHeader" class="matchHeader">
+								<div id="matchTime" class="matchTime"></div>
+								<div id="gamesTab" class="gamesTab">
+									<div id="matchOverview" class="gameOverview selected naGame">All</div>
+									<div id="game1" class="gameTab unselected naGame">1</div>
+									<div id="game2" class="gameTab unselected naGame">2</div>
+									<div id="game3" class="gameTab unselected naGame">3</div>
+								</div>
+								<div id="results"></div>
+								<div id="team_fantasy_points"></div>
+								<a href="" target="_blank" id="game_stream" class="vodLink button"></a>
+							</div>
+
+							<img id="team1_icon" class="teamIcon" />
+							<div id="team1_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+							<div class="vs">vs.</div>
+
+							<img id="team2_icon" class="teamIcon" />
+							<div id="team2_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+
+
+						</div>
+						<div id="match2" class="naMatch">
+							<div id="matchHeader" class="matchHeader">
+								<div id="matchTime" class="matchTime"></div>
+								<div id="gamesTab" class="gamesTab">
+									<div id="matchOverview" class="gameOverview selected naGame">All</div>
+									<div id="game1" class="gameTab unselected naGame">1</div>
+									<div id="game2" class="gameTab unselected naGame">2</div>
+									<div id="game3" class="gameTab unselected naGame">3</div>
+								</div>
+								<div id="results"></div>
+								<div id="team_fantasy_points"></div>
+								<a href="" target="_blank" id="game_stream" class="vodLink button"></a>
+							</div>
+
+							<img id="team1_icon" class="teamIcon" />
+							<div id="team1_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+
+							<div class="vs">vs.</div>
+
+							<img id="team2_icon" class="teamIcon" />
+							<div id="team2_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+
+
+						</div>
+						<div id="match3" class="naMatch">
+							<div id="matchHeader" class="matchHeader">
+								<div id="matchTime" class="matchTime"></div>
+								<div id="gamesTab" class="gamesTab">
+									<div id="matchOverview" class="gameOverview selected naGame">All</div>
+									<div id="game1" class="gameTab unselected naGame">1</div>
+									<div id="game2" class="gameTab unselected naGame">2</div>
+									<div id="game3" class="gameTab unselected naGame">3</div>
+								</div>
+								<div id="results"></div>
+								<div id="team_fantasy_points"></div>
+								<a href="" target="_blank" id="game_stream" class="vodLink button"></a>
+							</div>
+
+							<img id="team1_icon" class="teamIcon" />
+							<div id="team1_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+
+							<div class="vs">vs.</div>
+
+							<img id="team2_icon" class="teamIcon" />
+							<div id="team2_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+
+
+						</div>
+						<div id="match4" class="naMatch">
+							<div id="matchHeader" class="matchHeader">
+								<div id="matchTime" class="matchTime"></div>
+								<div id="gamesTab" class="gamesTab">
+									<div id="matchOverview" class="gameOverview selected naGame">All</div>
+									<div id="game1" class="gameTab unselected naGame">1</div>
+									<div id="game2" class="gameTab unselected naGame">2</div>
+									<div id="game3" class="gameTab unselected naGame">3</div>
+								</div>
+								<div id="results"></div>
+								<div id="team_fantasy_points"></div>
+								<a href="" target="_blank" id="game_stream" class="vodLink button"></a>
+							</div>
+
+							<img id="team1_icon" class="teamIcon" />
+							<div id="team1_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+
+							<div class="vs">vs.</div>
+
+							<img id="team2_icon" class="teamIcon" />
+							<div id="team2_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

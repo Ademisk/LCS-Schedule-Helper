@@ -1,0 +1,153 @@
+.leagueSelect {
+	width:600px;
+	height:20px
+}
+
+.week {
+	width:35px;
+	float:left;
+}
+
+.date {
+	width:600px;
+	height:20px;
+	margin: 10 0 0 5;
+}
+
+.naMatch {
+	border:1pt dashed grey;
+	height:110px;
+	display:none;
+}
+
+.euMatch {
+	border:1pt dashed grey;
+	height:110px;
+	display:none;
+}
+
+.matchHeader {
+	width:594px;
+	height:20px;
+}
+
+.matchTime {
+	float:left;
+	width:50px;
+	height:15px;
+	margin-left:5px;
+	border:1pt dashed green;
+}
+
+.weekTab {
+	float:left;
+	width:10px;
+}
+
+.weekContainer {
+    display: none;
+    width: 594px;
+    border: 1pt solid grey;
+}
+
+.gamesTab {
+	float:left;
+	width:100px;
+	height:15px;
+}
+
+.vodLink {
+	float:right;
+	width:100px;
+	height:15px;
+	margin-right:5px;
+	border: 1pt solid orange;
+	background-color: palegoldenrod;
+	font-weight:bold;
+}
+
+a.button {
+    -webkit-appearance: button;
+    text-decoration: none;
+    color: initial;
+}
+
+.gameOverview {
+	float:left;
+	width:15px;
+	margin-left:5px;
+}
+
+.gameTab {
+	float:left;
+	width:15px;
+	margin-left:5px;
+}
+
+.teamIcon {
+	width:75px;
+	height:75px;
+	margin:5px;
+	border: 2pt solid blue;
+	float:left;
+	background-color:black;
+}
+
+.teamRoster {
+	width:195px;
+	height:75px;
+	border:1pt solid green;
+	float:left;
+	margin: 5 0 5 0;
+}
+
+.playerRow {
+	width:195px;
+	height:15px;
+}
+
+.championIcon {
+	width:13px;
+	height:13px;
+	border:1pt solid red;
+	float:left;
+}
+
+.playerName {
+	width:80px;
+	height:13px;
+	float:left;
+	margin:1 0 1 2;
+	font-weight:bold;
+}
+
+.kda {
+	width:53px;
+	height:15px;
+	float:left;
+	margin-left:3px;
+	font-weight:bold;
+}
+
+.fantasyPts {
+	width:40px;
+	height:15px;
+	float:left;
+	margin-left:2px;
+	font-weight:bold;
+}
+
+.vs {
+	float:left;
+	width:10px;
+	height:10px;
+	margin:30 5 30 5;
+}
+
+.selected {
+	background-color: #95ea95;
+}
+
+.unselected {
+	background-color:lightgrey;
+}

@@ -1,0 +1,14 @@
+{
+  "name": "LCS Schedule Viewer",
+  "version": "1.0",
+  "description": "Display LCS schedule and results",
+  "icons": { "128": "icon.png" },
+  "browser_action": {
+    "default_title": "LCS Schedule Viewer",
+    "default_icon": "icon.png",
+    "default_popup": "lcs_schedule.html"
+  },
+  "manifest_version": 2,
+  "permissions": ["https://jsonp.afeld.me"],
+  "content_security_policy": "script-src 'self' https://jsonp.afeld.me; object-src 'self'"
+}
