@@ -9,6 +9,8 @@
     "default_popup": "lcs_schedule.html"
   },
   "manifest_version": 2,
-  "permissions": ["https://jsonp.afeld.me"],
+  "permissions": [
+    "storage"
+  ],
   "content_security_policy": "script-src 'self' https://jsonp.afeld.me; object-src 'self'"
 }

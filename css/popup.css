@@ -58,8 +58,9 @@
 
 .vodLink {
 	float:right;
-	width:100px;
+	width:85px;
 	height:15px;
+	padding-left:15px;
 	margin-right:5px;
 	border: 1pt solid orange;
 	background-color: palegoldenrod;
@@ -150,4 +151,42 @@ a.button {
 
 .unselected {
 	background-color:lightgrey;
+}
+
+.results {
+	float:left;
+	width:230px;
+	height:20px;
+	margin-left:30px;
+}
+
+.results .team1Results {
+	float:left;
+	width:100px;
+	height:20px;
+	text-align:right;
+}
+
+.results .team2Results {
+	float:right;
+	width:105px;
+	height:20px;
+}
+
+.winner {
+	color:green;
+	font-weight:bold;
+	font-size:large;
+}
+
+.loser {
+	color:red;
+	font-weight:bold;
+	font-size:large;
+}
+
+.tied {
+	color:orange;
+	font-weight:bold;
+	font-size:large;
 }

@@ -3,15 +3,18 @@
 
 
 //var PROXY = 'https://us.hidester.com/proxy.php?u='
-//var CORS_PROXY = "http://cors.io/?u=";
+var CORS_PROXY = "http://cors.io/?u=";
 //var CORS_PROXY = "https://crossorigin.me/";
 //var CORS_PROXY = "http://jsonp.afeld.me/?url=";
 //var CORS_PROXY = "http://www.whateverorigin.org/get?url="
-var CORS_PROXY = "http://anyorigin.com/get?url=";
+//var CORS_PROXY = "http://anyorigin.com/get?url=";
 
 var API_SCHEDULE_ITEMS = "http://api.lolesports.com/api/v1/scheduleItems";
 var API_HIGHLANDER_MATCH_DETAILS = "http://api.lolesports.com/api/v2/highlanderMatchDetails";
 var API_GAME_STATS = "https://acs.leagueoflegends.com/v1/stats/game/{realm}/{gameId}";
+
+var LIVE_NA_STREAM = "https://www.twitch.tv/nalcs1";
+var LIVE_EU_STREAM = "https://www.twitch.tv/eulcs1";
 
 var NA_LEAGUE_ID = 2;
 var EU_LEAGUE_ID = 3;
@@ -27,7 +30,7 @@ var NA_GAMES_PER_MATCH = 3;
 var EU_DAYS_PER_WEEK = 2;
 var EU_DAY1_MATCHES = 5;
 var EU_DAY2_MATCHES = 5;
-var NA_GAMES_PER_MATCH = 2;
+var EU_GAMES_PER_MATCH = 2;
 
 var NA_LEAGUE_HASH = "472c44a9-49d3-4de4-912c-aa4151fd1b3b";
 var NA_BRACKET_HASH = "2a6a824d-3009-4d23-9c83-859b7a9c2629";
@@ -55,6 +58,7 @@ function Match() {
   this.state = "",
   this.games = [],              //2 for EU, 3 for NA
   this.scheduled_time = "",
+  this.scheduled_time_milliseconds = 0;
   this.load_status = "",
   this.team1 = null,
   this.team2 = null,
@@ -79,7 +83,9 @@ function Team() {
   this.name = "",
   this.name_stub = "",
   this.icon = "",
-  this.fantasy_pts = 0.0
+  this.fantasy_pts = 0.0,
+  this.result = "",
+  this.games_won = 0
 };
 
 function TeamResults() {
@@ -102,8 +108,8 @@ function Roster() {
   this.top = null,
   this.jg = null,
   this.mid = null,
-  this.sup = null,
-  this.adc = null
+  this.adc = null,
+  this.sup = null
 };
 
 function Player() {
@@ -121,7 +127,21 @@ function PlayerStats() {
   this.penta_kills = 0,
   this.minions_killed = 0,
   this.fantasy_pts = 0.0
+};
+
+
+//Timer for games
+function MatchTimer() {
+  this.match_day = 0,
+  this.match_num = 0,
+  this.days = 0,
+  this.hours = 0,
+  this.minutes = 0,
+  this.seconds = 0
 }
+
+var intervalId;
+var timerObjects = [];    //When a tab changes, old timers get erased and new match timers for the week are added
 
 var na_schedule;
 var eu_schedule;
@@ -168,66 +188,70 @@ function getAndpopulateSchedule(scheduleData, matchData, league) {
   var oldDay = 0;
   $.each(newScheduleData, function(key) {
     var week = newScheduleData[key].tags["blockLabel"];
-    oldDay = day;
-    day = newScheduleData[key].tags["subBlockLabel"];
-    if (oldDay != day)
-      matchNum = 0;
-    else
-      matchNum++;
 
-    var dt = new Date(newScheduleData[key].scheduledTime);
-    var hours = dt.getHours();
-    var amPmString;
-    if (hours == 12) {
-      amPmString = "PM";
+    if (week.length == 1) {
+      oldDay = day;
+      day = newScheduleData[key].tags["subBlockLabel"];
+      if (oldDay != day)
+        matchNum = 0;
+      else
+        matchNum++;
+
+      var dt = new Date(newScheduleData[key].scheduledTime);
+      var hours = dt.getHours();
+      var amPmString;
+      if (hours == 12) {
+        amPmString = "PM";
+      }
+      else if (hours > 12) {
+        amPmString = "PM";
+        hours -= 12;
+      }
+      else
+        amPmString = "AM";
+
+      var dayDate = weekday[dt.getDay()] + ', ' + month[dt.getMonth()] + ' ' + dt.getDate() + ' - Day ' + day;
+
+      if (schedule[week - 1].days[day - 1] == null)
+        schedule[week - 1].days[day - 1] = new Day();
+      if (schedule[week - 1].days[day - 1].day_date == "") {
+        schedule[week - 1].days[day - 1].day_date = dayDate;
+        schedule[week - 1].days[day - 1].day_date_epoch = newScheduleData[key].scheduledTime;
+      }
+
+      m = new Match();
+      m.match_day = parseInt(day - 1);
+      m.match_num = matchNum;
+      m.match_id = newScheduleData[key].match;
+      m.load_status = "not started";
+      m.team1 = new Team();
+      m.team2 = new Team();
+      m.team1.name_stub = tournamentData.brackets[bracketID].matches[m.match_id].name.split("-vs-")[0];
+      m.team1.icon = teamIcon[m.team1.name_stub];
+      m.team2.name_stub = tournamentData.brackets[bracketID].matches[m.match_id].name.split("-vs-")[1];
+      m.team2.icon = teamIcon[m.team2.name_stub];
+      m.scheduled_time = hours + ':00' + amPmString;
+      m.scheduled_time_milliseconds = dt.getTime();
+      m.state = tournamentData.brackets[bracketID].matches[m.match_id].state;
+
+      //Get the limited game data (gameId, and gameRealm)
+      //If 3rd game for NA doesn't exist, game_id will be undefined
+      var matchGames = tournamentData.brackets[bracketID].matches[m.match_id].games;
+      m.games = new Array();
+      for (g in matchGames) {
+        var game = new Game();
+        game.game_num = parseInt(matchGames[g].name.replace("G", ""));
+        game.game_realm = matchGames[g].gameRealm;
+        game.game_id = matchGames[g].gameId;
+        game.game_id_hash = matchGames[g].id;
+        game.result = "not played";
+        m.games.push(game);
+      }
+
+      m.games.sort(sortGames);
+
+      schedule[week - 1].days[day - 1].matches.push(m);
     }
-    else if (hours > 12) {
-      amPmString = "PM";
-      hours -= 12;
-    }
-    else
-      amPmString = "AM";
-
-    var dayDate = weekday[dt.getDay()] + ', ' + month[dt.getMonth()] + ' ' + dt.getDate() + ' - Day ' + day;
-
-    if (schedule[week - 1].days[day - 1] == null)
-      schedule[week - 1].days[day - 1] = new Day();
-    if (schedule[week - 1].days[day - 1].day_date == "") {
-      schedule[week - 1].days[day - 1].day_date = dayDate;
-      schedule[week - 1].days[day - 1].day_date_epoch = newScheduleData[key].scheduledTime;
-    }
-
-    m = new Match();
-    m.match_day = parseInt(day - 1);
-    m.match_num = matchNum;
-    m.match_id = newScheduleData[key].match;
-    m.load_status = "not started";
-    m.team1 = new Team();
-    m.team2 = new Team();
-    m.team1.name_stub = tournamentData.brackets[bracketID].matches[m.match_id].name.split("-vs-")[0];
-    m.team1.icon = teamIcon[m.team1.name_stub];
-    m.team2.name_stub = tournamentData.brackets[bracketID].matches[m.match_id].name.split("-vs-")[1];
-    m.team2.icon = teamIcon[m.team2.name_stub];
-    m.scheduled_time = hours + ':00' + amPmString;
-    m.state = tournamentData.brackets[bracketID].matches[m.match_id].state;
-
-    //Get the limited game data (gameId, and gameRealm)
-    //If 3rd game for NA doesn't exist, game_id will be undefined
-    var matchGames = tournamentData.brackets[bracketID].matches[m.match_id].games;
-    m.games = new Array();
-    for (g in matchGames) {
-      var game = new Game();
-      game.game_num = parseInt(matchGames[g].name.replace("G", ""));
-      game.game_realm = matchGames[g].gameRealm;
-      game.game_id = matchGames[g].gameId;
-      game.game_id_hash = matchGames[g].id;
-      game.result = "not played";
-      m.games.push(game);
-    }
-
-    m.games.sort(sortGames);
-
-    schedule[week - 1].days[day - 1].matches.push(m);
   });
 }
 
@@ -239,44 +263,68 @@ function getWeekMatchResults(league, week) {
 
   for (var i = 0; i < week.days.length; i++) {
     for (var j = 0; j < week.days[i].matches.length; j++) {
-      if (week.days[i].matches[j].state == "unresolved") {
+      //If game is loaded and is either unresolved (not started) or resolved (finished), show timer until or results, respectively.
+      //If game in progress, fetch latest stats. They do update it throughout the course of the game, right?
+      if (week.days[i].matches[j].load_status == "done" && (week.days[i].matches[j].state == "unresolved" 
+        || week.days[i].matches[j].state == "resolved")) {
         showMatch(week.days[i].matches[j])
       } else {
-        var proxyApiUrl = API_HIGHLANDER_MATCH_DETAILS + '?tournamentId=' + leagueHash 
-          + '&matchId=' + week.days[i].matches[j].match_id;
-        (function(match) {
-          req.push($.ajax({
-            url: proxyApiUrl,
-            dataType: 'json',
-            method: 'GET'
-          }).then(function (resp) {
-            var req2 = [];
 
-            initMatchRosters(match);
+        //Attempt to get match from cache. If doesn't exist, make API calls
+        //var m = null;
+        if (USE_CACHE) {
+          req.push(getMatchFromCache(week.days[i].matches[j], curLeague, week.week_num).then(function(m) {
+            if (m != null) {
+              week.days[i].matches[j] = m;
+            }
+          }));
+        }
+        else {
+          var proxyApiUrl = API_HIGHLANDER_MATCH_DETAILS + '?tournamentId=' + leagueHash 
+            + '&matchId=' + week.days[i].matches[j].match_id;
+          (function(match) {
+            req.push($.ajax({
+              url: proxyApiUrl,
+              dataType: 'json',
+              method: 'GET'
+            }).then(function (resp) {
+              var req2 = [];
 
-            for (var k = 0; k < resp.gameIdMappings.length; k++) {
-              for (var l = 0; l < match.games.length; l++) {
-                if (match.games[l].game_id_hash == resp.gameIdMappings[k].id) {
-                  match.games[l].game_hash = resp.gameIdMappings[k].gameHash;
-                  match.games[l].vod_link = resp.videos.source;
+              initMatchRosters(match);
 
-                  addPlayersAndRoles(match, l, resp);   //Initializes players and positions
+              for (var k = 0; k < resp.gameIdMappings.length; k++) {
+                for (var l = 0; l < match.games.length; l++) {
+                  if (match.games[l].game_id_hash == resp.gameIdMappings[k].id) {
+                    match.games[l].game_hash = resp.gameIdMappings[k].gameHash;
 
-                  req2.push(getGameData(match, l));     //match, gameNum
+                    //Game VODs seem to be in game order
+                    if (k < resp.videos.length)
+                      match.games[k].vod_link = resp.videos[k].source;
+                    else
+                      match.games[k].vod_link = "";
+
+                    //addPlayersAndRoles(match, l, resp);   //Initializes players and positions
+
+                    req2.push(getGameData(match, l));     //match, gameNum
+                  }
                 }
               }
-            }
-            return $.when.apply($, req2).done(function() {
-              console.log("Games for day #" + (i + 1) + " match #" + (j + 1) + " resolved");
-              calculateFantasyPts(match);
+              return $.when.apply($, req2).done(function() {
+                console.log("Games for day #" + (i + 1) + " match #" + (j + 1) + " resolved");
+                calculateFantasyPts(match);
+                calculateTeamWin(match);
 
-              //Show match only if it's on the current league and week
-              if (league == curLeague && week.week_num == curWeek) {
-                showMatch(match);
-              }
-            });
-          }));
-        })(week.days[i].matches[j]);
+                if (USE_CACHE)
+                  setMatchIntoCache(match, curLeague, week.week_num);
+
+                //Show match only if it's on the current league and week
+                if (league == curLeague && week.week_num == curWeek) {
+                  showMatch(match);
+                }
+              });
+            }));
+          })(week.days[i].matches[j]);
+        }
       }
     }
   }
@@ -313,93 +361,6 @@ function initMatchRosters(match) {
   match.team2_roster.adc.stats = new PlayerStats();
 }
 
-//Populates roster with player names and positions
-function addPlayersAndRoles(match, gameNum, data) {
-  var team1;
-  var team2;
-  var game = match.games[gameNum];
-
-  //Teams aren't guaranteed an order, so we need to match them before filling our the roster
-  if (match.team1.name_stub == data.teams[0].acronym) {
-    team1 = data.teams[0];
-    team2 = data.teams[1];
-  } else {
-    team1 = data.teams[1];
-    team2 = data.teams[0];
-  }
-
-  game.team1_stats = new TeamResults();
-  game.team1_stats.stats = new TeamStats();
-  game.team1_stats.roster = new Roster();
-  game.team1_stats.roster.top = new Player();
-  game.team1_stats.roster.top.stats = new PlayerStats();
-  game.team1_stats.roster.jg = new Player();
-  game.team1_stats.roster.jg.stats = new PlayerStats();
-  game.team1_stats.roster.mid = new Player();
-  game.team1_stats.roster.mid.stats = new PlayerStats();
-  game.team1_stats.roster.sup = new Player();
-  game.team1_stats.roster.sup.stats = new PlayerStats();
-  game.team1_stats.roster.adc = new Player();
-  game.team1_stats.roster.adc.stats = new PlayerStats();
-
-  game.team2_stats = new TeamResults();
-  game.team2_stats.stats = new TeamStats();
-  game.team2_stats.roster = new Roster();
-  game.team2_stats.roster.top = new Player();
-  game.team2_stats.roster.top.stats = new PlayerStats();
-  game.team2_stats.roster.jg = new Player();
-  game.team2_stats.roster.jg.stats = new PlayerStats();
-  game.team2_stats.roster.mid = new Player();
-  game.team2_stats.roster.mid.stats = new PlayerStats();
-  game.team2_stats.roster.sup = new Player();
-  game.team2_stats.roster.sup.stats = new PlayerStats();
-  game.team2_stats.roster.adc = new Player();
-  game.team2_stats.roster.adc.stats = new PlayerStats();
-
-  for (var k = 0; k < 5; k++) {
-    for (var l = 0; l < data.players.length; l++) {
-      if (team1.starters[k] == data.players[l].id) {
-        switch (data.players[l].roleSlug) {
-          case "toplane":
-            game.team1_stats.roster.top.name = data.players[l].name;
-            break;
-          case "jungle":
-            game.team1_stats.roster.jg.name = data.players[l].name;
-            break;
-          case "midlane":
-            game.team1_stats.roster.mid.name = data.players[l].name;
-            break;
-          case "support":
-            game.team1_stats.roster.sup.name = data.players[l].name;
-            break;
-          case "adcarry":
-            game.team1_stats.roster.adc.name = data.players[l].name;
-            break;
-        }
-      }
-      if (team2.starters[k] == data.players[l].id) {
-        switch (data.players[l].roleSlug) {
-          case "toplane":
-            game.team2_stats.roster.top.name = data.players[l].name;
-            break;
-          case "jungle":
-            game.team2_stats.roster.jg.name = data.players[l].name;
-            break;
-          case "midlane":
-            game.team2_stats.roster.mid.name = data.players[l].name;
-            break;
-          case "support":
-            game.team2_stats.roster.sup.name = data.players[l].name;
-            break;
-          case "adcarry":
-            game.team2_stats.roster.adc.name = data.players[l].name;
-            break;
-        }
-      }
-    }
-  }
-}
-
 //Returns data specific to a game, then populates it
 function getGameData(match, gameNum) {
   var apiUrl = API_GAME_STATS.replace("{realm}", match.games[gameNum].game_realm).replace("{gameId}", match.games[gameNum].game_id) 
@@ -420,48 +381,127 @@ function getGameData(match, gameNum) {
   });
 }
 
+function calculateTeamWin(match) {
+  $.each(match.games, function(key) {
+    if (match.games[key].result == 'resolved') {
+      if (match.games[key].team1_stats.result == 'Win')
+        match.team1.games_won++;
+      else
+        match.team2.games_won++;
+    }
+  });
+
+  if (match.team1.games_won == match.team2.games_won) {
+    match.team1.result = 'Tie';
+    match.team2.result = 'Tie';
+  }
+  else if (match.team1.games_won > match.team2.games_won) {
+    match.team1.result = 'Win';
+    match.team2.result = 'Lose';
+  } else {
+    match.team1.result = 'Lose';
+    match.team2.result = 'Win';
+  }
+}
+
 //Filter and set game results per player
+//Assumptions:
+//1) Data.paricipantIdentities are ordered team1 0-4, team2 5-9.
+//2) Within those team groupings, the order is top, jg, mid, adc, sup
+//3) These orders match up with team1 participant 1-5, and team2 participant 6-10
 function parseGameResults(match, gameNum, data) {
   var team1Name = "";
   var team2Name = "";
 
-  match.games[gameNum].result = "resolved";
+  var game = match.games[gameNum];
+  game.result = "resolved";
 
-  //Player results
-  for (var i = 0; i < 10; i++) {
-    var pTeam = data.participantIdentities[i].player.summonerName.split(" ")[0];
+  game.team1_stats = new TeamResults();
+  game.team1_stats.stats = new TeamStats();
+  game.team1_stats.roster = new Roster();
+  game.team2_stats = new TeamResults();
+  game.team2_stats.stats = new TeamStats();
+  game.team2_stats.roster = new Roster();
+
+  //Assuming that first 5 players are team 1, and 2nd 5 are team 2
+  //Team 1 player results
+  team1Name = data.participantIdentities[0].player.summonerName.split(" ")[0];
+  for (var i = 0; i < 5; i++) {
     var pName = data.participantIdentities[i].player.summonerName.split(" ")[1];
-    var pId = data.participantIdentities[i].participantId;
-    var pTeamId = data.participants[i].teamId;
 
-    if (team1Name == "" && pTeamId == 100) {
-      team1Name = pTeam;
-    }
-
-    if (team2Name == "" && pTeamId == 200) {
-      team2Name = pTeam;
-    }
-
+    //Not assuming that teams returned are in the correct order, so we find the correct roster based on known team name
     var roster;
-    if (match.team1.name_stub == pTeam) {
+    if (match.team1.name_stub == team1Name) {
       roster = match.games[gameNum].team1_stats.roster;
     } else {
       roster = match.games[gameNum].team2_stats.roster;
     }
 
-    $.each(roster, function(key) {
-      if (roster[key].name == pName) {
-        roster[key].stats.kills = data.participants[i].stats.kills;
-        roster[key].stats.assists = data.participants[i].stats.assists;
-        roster[key].stats.deaths = data.participants[i].stats.deaths;
-        roster[key].stats.triple_kills = data.participants[i].stats.tripleKills;
-        roster[key].stats.quadra_kills = data.participants[i].stats.quadraKills;
-        roster[key].stats.penta_kills = data.participants[i].stats.pentaKills;
-        roster[key].stats.minions_killed = data.participants[i].stats.totalMinionsKilled;
+    var pos = new Player();
+    pos.stats = new PlayerStats();
+    pos.name = pName;
+    pos.stats.kills = data.participants[i].stats.kills;
+    pos.stats.assists = data.participants[i].stats.assists;
+    pos.stats.deaths = data.participants[i].stats.deaths;
+    pos.stats.triple_kills = data.participants[i].stats.tripleKills;
+    pos.stats.quadra_kills = data.participants[i].stats.quadraKills;
+    pos.stats.penta_kills = data.participants[i].stats.pentaKills;
+    pos.stats.minions_killed = data.participants[i].stats.totalMinionsKilled;
+    pos.champion = data.participants[i].championId;
 
-        roster[key].champion = data.participants[i].championId;
-      }
-    })
+    //Assume positions are in indexed order
+    switch (i) {
+      case 0:   roster.top = pos;
+        break;
+      case 1:   roster.jg = pos;
+        break;
+      case 2:   roster.mid = pos;
+        break;
+      case 3:   roster.adc = pos;
+        break;
+      case 4:   roster.sup = pos;
+        break;
+    }
+  }
+
+  //Team 2 player results
+  team2Name = data.participantIdentities[5].player.summonerName.split(" ")[0];
+  for (var i = 5; i < 10; i++) {
+    var pName = data.participantIdentities[i].player.summonerName.split(" ")[1];
+
+    //Not assuming that teams returned are in the correct order, so we find the correct roster based on known team name
+    var roster;
+    if (match.team1.name_stub == team2Name) {
+      roster = match.games[gameNum].team1_stats.roster;
+    } else {
+      roster = match.games[gameNum].team2_stats.roster;
+    }
+
+    var pos = new Player();
+    pos.stats = new PlayerStats();
+    pos.name = pName;
+    pos.stats.kills = data.participants[i].stats.kills;
+    pos.stats.assists = data.participants[i].stats.assists;
+    pos.stats.deaths = data.participants[i].stats.deaths;
+    pos.stats.triple_kills = data.participants[i].stats.tripleKills;
+    pos.stats.quadra_kills = data.participants[i].stats.quadraKills;
+    pos.stats.penta_kills = data.participants[i].stats.pentaKills;
+    pos.stats.minions_killed = data.participants[i].stats.totalMinionsKilled;
+    pos.champion = data.participants[i].championId;
+
+    //Assume positions are in indexed order
+    switch (i) {
+      case 5:   roster.top = pos;
+        break;
+      case 6:   roster.jg = pos;
+        break;
+      case 7:   roster.mid = pos;
+        break;
+      case 8:   roster.adc = pos;
+        break;
+      case 9:   roster.sup = pos;
+        break;
+    }
   }
 
   //Team results
@@ -497,14 +537,22 @@ function parseGameResults(match, gameNum, data) {
 function setCurWeek() {
   var dt = new Date();
   var curWeekMonday = new Date();
-  curWeekMonday.setDate(dt.getDate() - (dt.getDay() - 1));
+  curWeekMonday.setDate(dt.getDate() - (dt.getDay() == 0 ? 6 : dt.getDay()));
   var curWeekSunday = new Date();
-  curWeekSunday.setDate(dt.getDate() + (7 - dt.getDay()));
+  curWeekSunday.setDate(curWeekMonday.getDate() + 6);
 
   for (var i = 0; i < WEEKS_IN_LCS && curWeek == -1; i++) {
     var tempDate = new Date(na_schedule[i].days[0].day_date_epoch);
     if (curWeekMonday <= tempDate && tempDate <= curWeekSunday)
       curWeek = i + 1;
+  }
+
+  //If <, then before tournament begins, so 1st week. If >, then after tournament, so last week
+  if (curWeek == -1) {
+    if (dt < new Date(na_schedule[0].days[0].day_date_epoch))
+      curWeek = 1;
+    else if (dt > new Date(na_schedule[8].days[1].day_date_epoch))
+      curWeek = 9
   }
 }
 
@@ -512,6 +560,9 @@ function setCurWeek() {
 function showTab(league, week) {
   curLeague = league == null ? curLeague : league;
   curWeek = week == null ? curWeek : week;
+
+  //reset all timers after old tab is gone
+  stopAndClearTimers();
 
   var schedule;
   if (curLeague == "na")
@@ -586,8 +637,22 @@ function showMatch(match, gameNum) {
 
   updateGameTabHighlight(match, gNum)
 
-  if (match.state == "unresolved") {
-    $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #team1_roster' + ' #mid #player_name').html('TBD');
+  if (match.state != "resolved") {
+    //Show time until next match
+    var curDate = new Date();
+    var matchDate = new Date(match.scheduled_time_milliseconds);
+
+    if (curDate < matchDate) {
+      setAndStartTimers(match);
+    } else {
+      $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #team1_roster' + ' #mid #player_name').html('In Progress');
+      match.state = "in progress";
+
+      var liveStream = curLeague == "na" ? LIVE_NA_STREAM : LIVE_EU_STREAM;
+      $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #matchHeader #game_stream').show()
+      $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #matchHeader #game_stream').html('Watch Live!')
+      $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #matchHeader #game_stream').attr('href', liveStream);
+    }
   }
   else if (match.load_status != "done") {
     //show loading spinner
@@ -599,6 +664,13 @@ function showMatch(match, gameNum) {
     //show game data
     showGame(match, gNum);
   }
+}
+
+//Display the countdown until next game
+function showTimeUntilMatch(o) {
+  var timeUntilGame = padZeros(o.days, 2) + ":" + padZeros(o.hours, 2) + ":" + padZeros(o.minutes, 2) + ":" + padZeros(o.seconds, 2);
+
+  $('#day' + (o.match_day + 1) + ' #match' + (o.match_num + 1) + ' #team1_roster' + ' #mid #player_name').html(timeUntilGame);
 }
 
 function clearDisplayedGame(dayNum, matchNum) {
@@ -651,23 +723,39 @@ function showGame(match, game) {
   if (game == 0) {    //Display data aggregated from all games in match
     $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #matchHeader #game_stream').hide();
     //The data
-    var matchRoster;
-    var matchRoster2;
-    if (curLeague == "na") {
-      matchRoster = na_schedule[curWeek - 1].days[day].matches[match.match_num].team1_roster;
-      matchRoster2 = na_schedule[curWeek - 1].days[day].matches[match.match_num].team2_roster;
+    var m;
+    if (curLeague == "na")
+      m = na_schedule[curWeek - 1].days[day].matches[match.match_num];
+    else
+      m = eu_schedule[curWeek - 1].days[day].matches[match.match_num];
+
+    //Set team results
+    var t1Style;
+    var t2Style;
+    if (m.team1.games_won > m.team2.games_won) {
+      t1Style = "winner";
+      t2Style = "loser";
+    }
+    else if (m.team1.games_won < m.team2.games_won) {
+      t1Style = "loser"; 
+      t2Style = "winner";
     } else {
-      matchRoster = eu_schedule[curWeek - 1].days[day].matches[match.match_num].team1_roster;
-      matchRoster2 = eu_schedule[curWeek - 1].days[day].matches[match.match_num].team2_roster;
+      t1Style = 'tied';
+      t2Style = 'tied';
     }
 
+    $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #matchHeader #results #team1_results').html(m.team1.result + ' - ' + m.team1.games_won);
+    $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #matchHeader #results #team1_results').attr('class', '').addClass(t1Style).addClass('team1Results');
+    $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #matchHeader #results #team2_results').html(m.team2.games_won + ' - ' + m.team2.result);
+    $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #matchHeader #results #team2_results').attr('class', '').addClass(t2Style).addClass('team2Results');
+
     for (var i = 0; i < team1Roster.length; i++) {
-      var pData = matchRoster[pos[team1Roster[i].id]];
+      var pData = m.team1_roster[pos[team1Roster[i].id]];
       $(team1Roster[i]).find('#player_name').html(pData.name);
       $(team1Roster[i]).find('#kda').html(pData.stats.kills + "/" + pData.stats.deaths + "/" + pData.stats.assists);
       $(team1Roster[i]).find('#fantasy_pts').html(parseFloat(pData.stats.fantasy_pts).toFixed(2));
 
-      var pData2 = matchRoster2[pos[team2Roster[i].id]];
+      var pData2 = m.team2_roster[pos[team2Roster[i].id]];
       $(team2Roster[i]).find('#player_name').html(pData2.name);
       $(team2Roster[i]).find('#kda').html(pData2.stats.kills + "/" + pData2.stats.deaths + "/" + pData2.stats.assists);
       $(team2Roster[i]).find('#fantasy_pts').html(parseFloat(pData2.stats.fantasy_pts).toFixed(2));
@@ -683,12 +771,37 @@ function showGame(match, game) {
 
     if (curGame.result == "not played") {
       $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #team1_roster' + ' #mid #player_name').html('Not Played');
+
+      $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #matchHeader #results #team1_results').html('');
+      $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #matchHeader #results #team2_results').html('');
     } else {
       $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #matchHeader #game_stream').show();
-      $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #matchHeader #game_stream').html('Watch Game');
-      $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #matchHeader #game_stream').attr('href', curGame.vod_link);
+      if (curGame.vod_link != "") {
+        $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #matchHeader #game_stream').html('Watch Game');
+        $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #matchHeader #game_stream').attr('href', curGame.vod_link);
+      } else {
+        $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #matchHeader #game_stream').html('No VOD Yet');
+        $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #matchHeader #game_stream').attr('href', "");
+      }
 
-      //Set the data
+      //Set team results
+      var t1Style;
+      var t2Style;
+      if (curGame.team1_stats.result == 'Win') {
+        t1Style = "winner";
+        t2Style = "loser";
+      }
+      else {
+        t1Style = "loser"; 
+        t2Style = "winner";
+      }
+      $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #matchHeader #results #team1_results').html(curGame.team1_stats.result);
+      $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #matchHeader #results #team1_results').attr('class', '').addClass(t1Style).addClass('team1Results');
+      $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #matchHeader #results #team2_results').html(curGame.team2_stats.result);
+      $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #matchHeader #results #team2_results').attr('class', '').addClass(t2Style).addClass('team2Results');
+
+
+      //Set the team results
       for (var i = 0; i < team1Roster.length; i++) {
         var pData = curGame.team1_stats.roster[pos[team1Roster[i].id]];
 
@@ -719,7 +832,7 @@ function populateTab(league, week) {
 
     //Populate matches
     for (var j = 0; j < schedule[week - 1].days[i].matches.length; j++) {
-      $('#day' + (i + 1) + ' #match' + (j + 1) + ' #matchTime').html(schedule[week - 1].days[i].matches[i].scheduled_time)
+      $('#day' + (i + 1) + ' #match' + (j + 1) + ' #matchTime').html(schedule[week - 1].days[i].matches[j].scheduled_time)
       $('#day' + (i + 1) + ' #match' + (j + 1) + ' #team1_icon').attr('src', teamIcon[schedule[week - 1].days[i].matches[j].team1.name_stub]);
       $('#day' + (i + 1) + ' #match' + (j + 1) + ' #team2_icon').attr('src', teamIcon[schedule[week - 1].days[i].matches[j].team2.name_stub]);
 

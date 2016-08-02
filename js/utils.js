@@ -67,6 +67,11 @@ var FIRST_BLOOD_PTS = 2;
 var TOWERS_DESTROYED_PTS = 1;
 var WIN_UNDER_30_PTS = 2;
 
+
+var SECS_IN_MIN = 60;
+var SECS_IN_HOUR = 3600;
+var SECS_IN_DAY = 86400;
+
 //Calculate team and player fantasy pts
 function calculateFantasyPts(match) {
 	for (var i = 0; i < match.games.length && match.games[i].result == "resolved"; i++) {
@@ -154,4 +159,184 @@ function sortMatches(a, b) {
 
 function sortGames(a, b) {
 	return a.game_num - b.game_num;
+}
+
+function padZeros(num, size) {
+	var n = num.toString();
+	while (n.length < size)
+		n = "0" + n;
+
+	return n;
+}
+
+//========================================================================
+// Match Timer
+//========================================================================
+
+//Counts down the timers in queue
+function timerCount()
+{
+	$.each(timerObjects, function(key) {
+		var o = timerObjects[key];
+
+		var secSub = 1
+		var minSub = 0;
+		var hourSub = 0;
+		var daySub = 0;
+		if (o.seconds - secSub < 0) {
+			o.seconds = 59;
+			minSub = 1;
+		} else
+			o.seconds--;
+
+		if (o.minutes - minSub < 0) {
+			o.minutes = 59;
+			hourSub = 1;
+		} else
+			o.minutes -= minSub;
+
+		if (o.hours - hourSub < 0) {
+			o.hours = 23;
+			daySub = 1;
+		} else
+			o.hours -= hourSub;
+
+		if (o.days - daySub < 0) {
+			//timer expired
+			timerObjects.split(key, 1);
+		} else {
+			o.days -= daySub;
+			showTimeUntilMatch(o);
+		}
+			
+	});
+
+	//If all timers expired, stop counter interval
+	if (timerObjects.length == 0) {
+		clearInterval(intervalId);
+		intervalId = 0;
+	}
+}
+
+//Stop timer countdown, and clear out all timers
+function stopAndClearTimers() {
+	clearInterval(intervalId);
+	intervalId = 0;
+
+	timerObjects = [];
+}
+
+//Add a match to have it's timer shown
+function setAndStartTimers(match) {
+	var newTimer = true;
+
+	$.each(timerObjects, function(key) {
+		if (timerObjects[key].match_day == match.match_day && timerObjects[key].match_num == match.match_num)
+			newTimer = false;
+	});
+
+	if (newTimer) {
+		var o = new MatchTimer();
+		o.match_day = match.match_day;
+		o.match_num = match.match_num;
+
+
+		var curDate = new Date();
+		seconds = Math.floor((match.scheduled_time_milliseconds - curDate.getTime()) / 1000);
+		o.days = Math.floor(seconds / SECS_IN_DAY);
+		seconds -= (o.days * SECS_IN_DAY);
+		o.hours = Math.floor(seconds / SECS_IN_HOUR);
+		seconds -= (o.hours * SECS_IN_HOUR);
+		o.minutes = Math.floor(seconds / SECS_IN_MIN);
+		o.seconds = seconds - (o.minutes * SECS_IN_MIN);
+		timerObjects.push(o);
+
+		//start timer if not started
+		if (intervalId == 0)
+			intervalId = setInterval(timerCount, 1000);
+	}
+}
+
+//========================================================================
+// Match Caching
+//========================================================================
+
+//Break up a match and cache it
+function setMatchIntoCache(match, league, weekNum) {
+	var baseKey = league + "-" + weekNum + "-" + (match.match_day + 1) + "-" + (match.match_num + 1);
+
+	var o = {};
+	o[baseKey + "-match_id"] = match.match_id;
+	o[baseKey + "-state"] = match.state;
+	o[baseKey + "-scheduled_time"] = match.scheduled_time;
+	o[baseKey + "-scheduled_time_milliseconds"] = match.scheduled_time_milliseconds;
+	o[baseKey + "-load_status"] = match.load_status;
+	chrome.storage.sync.set(o);
+
+	o = {};
+	$.each(match.games, function(key) {
+		o[baseKey + "-game" + (key + 1)] = match.games[key];
+		chrome.storage.sync.set(o);
+	});
+
+	o = {};
+	o[baseKey + "-team1"] = match.team1
+	chrome.storage.sync.set(o);
+
+	o = {};
+	o[baseKey + "-team2"] = match.team2
+	chrome.storage.sync.set(o);
+
+	o = {};
+	o[baseKey + "-team1_roster"] = match.team1_roster
+	chrome.storage.sync.set(o);
+
+	o = {};
+	o[baseKey + "-team2_roster"] = match.team2_roster
+	chrome.storage.sync.set(o);
+}
+
+//Retrieve cached match data
+function getMatchFromCache(match, league, weekNum) {
+	var baseKey = league + "-" + weekNum + "-" + (match.match_day + 1) + "-" + (match.match_num + 1);
+
+	var o = [];
+	o.push(baseKey + "-match_id");
+	o.push(baseKey + "-state");
+	o.push(baseKey + "-scheduled_time");
+	o.push(baseKey + "-scheduled_time_milliseconds");
+	o.push(baseKey + "-load_status");
+
+	//Get 3 games for na, 2 for eu
+	var limit = 0;
+	if (league == "na")
+		limit = NA_GAMES_PER_MATCH;
+	else
+		limit = EU_GAMES_PER_MATCH;
+
+	for (var i = 0; i < limit; i++) {
+		o.push(baseKey + "-game" + (i + 1));
+	}
+
+	o.push(baseKey + "-team1");
+	o.push(baseKey + "-team2");
+	o.push(baseKey + "-team1_roster");
+	o.push(baseKey + "-team2_roster");
+
+	chrome.storage.sync.get(o, function(items) {
+		match.match_id = items[baseKey + "-match_id"];
+		match.state = items[baseKey + "-state"];
+		match.scheduled_time = items[baseKey + "-scheduled_time"];
+		match.scheduled_time_milliseconds = items[baseKey + "-scheduled_time_milliseconds"];
+		match.load_status = items[baseKey + "-load_status"];
+
+		for (var i = 0; i < limit; i++) {
+			match.games.push(items[baseKey + "-game" + (i + 1)]);
+		}
+
+		match.team1 = items[baseKey + "-team1"];
+		match.team2 = items[baseKey + "-team2"];
+		match.team1_roster = items[baseKey + "-team1_roster"];
+		match.team2_roster = items[baseKey + "-team2_roster"];
+	})
 }
