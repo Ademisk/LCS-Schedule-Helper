@@ -78,22 +78,22 @@ function calculateFantasyPts(match) {
 		//Team 1
 		//Team 1 fantasy pts per game
 		var gameStats = match.games[i].team1_stats;
-		gameStats.stats.fantasy_pts = (gameStats.result == "Win" ? WIN_PTS : 0) + gameStats.stats.barons_killed * BARON_KILLS_PTS 
+		gameStats.stats.f_pts = round((gameStats.result == "Win" ? WIN_PTS : 0) + gameStats.stats.barons_killed * BARON_KILLS_PTS 
 			+ gameStats.stats.dragons_killed * DRAGON_KILLS_PTS + (gameStats.stats.first_blood ? FIRST_BLOOD_PTS : 0) 
-			+ (gameStats.stats.won_under_30 ? WIN_UNDER_30_PTS : 0) + gameStats.stats.towers_destroyed * TOWERS_DESTROYED_PTS;
+			+ (gameStats.stats.won_under_30 ? WIN_UNDER_30_PTS : 0) + gameStats.stats.towers_destroyed * TOWERS_DESTROYED_PTS);
 
 		//Team fantasy pts combined (first 2 games)
 		if (i < 2) {
-			match.team1.fantasy_pts += gameStats.stats.fantasy_pts;
+			match.team1.f_pts = round(match.team1.f_pts + gameStats.stats.f_pts);
 		}
 
 		//Team 1 player fantasy pts
 		$.each(gameStats.roster, function(key) {
 			//Player fantasy pts per game 
 			var player = gameStats.roster[key];
-			player.stats.fantasy_pts = player.stats.kills * KILL_PTS + player.stats.deaths * DEATH_PTS + player.stats.assists * ASSIST_PTS 
-				+ player.stats.minions_killed * MINION_PTS + player.stats.triple_kills * TRIPLE_KILL_PTS 
-				+ player.stats.quadra_kills * QUADRA_KILL_PTS + player.stats.penta_kills * PENTA_KILL_PTS;
+			player.stats.f_pts = round(player.stats.k * KILL_PTS + player.stats.d * DEATH_PTS + player.stats.a * ASSIST_PTS 
+				+ player.stats.m * MINION_PTS + player.stats.tk * TRIPLE_KILL_PTS 
+				+ player.stats.qk * QUADRA_KILL_PTS + player.stats.pk * PENTA_KILL_PTS);
 
 			//Player fantasy pts combined (first 2 games)
 			if (i < 2) {
@@ -102,36 +102,36 @@ function calculateFantasyPts(match) {
 					matchPlayer.name = player.name;
 					matchPlayer.champion = player.champion;
 				}
-				matchPlayer.stats.kills += player.stats.kills;
-				matchPlayer.stats.deaths += player.stats.deaths;
-				matchPlayer.stats.assists += player.stats.assists;
-				matchPlayer.stats.triple_kills += player.stats.triple_kills;
-				matchPlayer.stats.quadra_kills += player.stats.quadra_kills;
-				matchPlayer.stats.penta_kills += player.stats.penta_kills;
-				matchPlayer.stats.minions_killed += player.stats.minions_killed;
-				matchPlayer.stats.fantasy_pts += player.stats.fantasy_pts;
+				matchPlayer.stats.k += player.stats.k;
+				matchPlayer.stats.d += player.stats.d;
+				matchPlayer.stats.a += player.stats.a;
+				matchPlayer.stats.tk += player.stats.tk;
+				matchPlayer.stats.qk += player.stats.qk;
+				matchPlayer.stats.pk += player.stats.pk;
+				matchPlayer.stats.m += player.stats.m;
+				matchPlayer.stats.f_pts = round(matchPlayer.stats.f_pts + player.stats.f_pts);
 			}
 		});
 
 		//Team 2
 		//Team 2 fantasy pts per game
 		var gameStats2 = match.games[i].team2_stats;
-		gameStats2.stats.fantasy_pts = (gameStats2.result == "Win" ? WIN_PTS : 0) + gameStats2.stats.barons_killed * BARON_KILLS_PTS 
+		gameStats2.stats.f_pts = round((gameStats2.result == "Win" ? WIN_PTS : 0) + gameStats2.stats.barons_killed * BARON_KILLS_PTS 
 			+ gameStats2.stats.dragons_killed * DRAGON_KILLS_PTS + (gameStats2.stats.first_blood ? FIRST_BLOOD_PTS : 0) 
-			+ (gameStats2.stats.won_under_30 ? WIN_UNDER_30_PTS : 0) + gameStats2.stats.towers_destroyed * TOWERS_DESTROYED_PTS;
+			+ (gameStats2.stats.won_under_30 ? WIN_UNDER_30_PTS : 0) + gameStats2.stats.towers_destroyed * TOWERS_DESTROYED_PTS);
 
 		//Team fantasy pts combined (first 2 games)
 		if (i < 2) {
-			match.team2.fantasy_pts += gameStats2.stats.fantasy_pts;
+			match.team2.f_pts = round(match.team2.f_pts + gameStats2.stats.f_pts);
 		}
 
 		//Team 2 players
 		$.each(gameStats2.roster, function(key) {
 			//Player fantasy pts per game 
 			var player2 = gameStats2.roster[key];
-			player2.stats.fantasy_pts = player2.stats.kills * KILL_PTS + player2.stats.deaths * DEATH_PTS + player2.stats.assists * ASSIST_PTS 
-				+ player2.stats.minions_killed * MINION_PTS + player2.stats.triple_kills * TRIPLE_KILL_PTS 
-				+ player2.stats.quadra_kills * QUADRA_KILL_PTS + player2.stats.penta_kills * PENTA_KILL_PTS;
+			player2.stats.f_pts = round(player2.stats.k * KILL_PTS + player2.stats.d * DEATH_PTS + player2.stats.a * ASSIST_PTS 
+				+ player2.stats.m * MINION_PTS + player2.stats.tk * TRIPLE_KILL_PTS 
+				+ player2.stats.qk * QUADRA_KILL_PTS + player2.stats.pk * PENTA_KILL_PTS);
 
 			//Player fantasy pts combined (first 2 games)
 			if (i < 2) {
@@ -140,14 +140,14 @@ function calculateFantasyPts(match) {
 					matchPlayer2.name = player2.name;
 					matchPlayer2.champion = player2.champion;
 				}
-				matchPlayer2.stats.kills += player2.stats.kills;
-				matchPlayer2.stats.deaths += player2.stats.deaths;
-				matchPlayer2.stats.assists += player2.stats.assists;
-				matchPlayer2.stats.triple_kills += player2.stats.triple_kills;
-				matchPlayer2.stats.quadra_kills += player2.stats.quadra_kills;
-				matchPlayer2.stats.penta_kills += player2.stats.penta_kills;
-				matchPlayer2.stats.minions_killed += player2.stats.minions_killed;
-				matchPlayer2.stats.fantasy_pts += player2.stats.fantasy_pts;
+				matchPlayer2.stats.k += player2.stats.k;
+				matchPlayer2.stats.d += player2.stats.d;
+				matchPlayer2.stats.a += player2.stats.a;
+				matchPlayer2.stats.tk += player2.stats.tk;
+				matchPlayer2.stats.qk += player2.stats.qk;
+				matchPlayer2.stats.pk += player2.stats.pk;
+				matchPlayer2.stats.m += player2.stats.m;
+				matchPlayer2.stats.f_pts = round(matchPlayer2.stats.f_pts + player2.stats.f_pts);
 			}
 		});
 	}
@@ -167,6 +167,10 @@ function padZeros(num, size) {
 		n = "0" + n;
 
 	return n;
+}
+
+function round(p) {
+	return parseFloat(parseFloat(p).toFixed(2));
 }
 
 //========================================================================
@@ -260,47 +264,137 @@ function setAndStartTimers(match) {
 //========================================================================
 // Match Caching
 //========================================================================
+function loadCachedMatches() {
+	var o = [];
+	var bKeyNA;
+	var bKeyEU;
+
+	//Create the keys
+	//Get all NA data
+	for (var i = 0; i < WEEKS_IN_LCS; i++) {
+		for (var j = 0; j < NA_DAYS_PER_WEEK; j++) {
+			for (var k = 0; k < na_schedule[i].days[j].matches.length; k++) {
+				bKeyNA = "na-" + (i + 1) + "-" + (j + 1) + "-" + (k + 1);
+				//o.push(bKeyNA + "-match_id");
+				o.push(bKeyNA + "-state");
+				o.push(bKeyNA + "-scheduled_time");
+				o.push(bKeyNA + "-scheduled_time_milliseconds");
+				o.push(bKeyNA + "-load_status");
+
+				var gamesPerMatch = NA_GAMES_PER_MATCH;
+
+				for (var l = 0; l < gamesPerMatch; l++) {
+					o.push(bKeyNA + "-game" + (l + 1));
+				}
+
+				o.push(bKeyNA + "-team1");
+				o.push(bKeyNA + "-team2");
+				o.push(bKeyNA + "-team1_roster");
+				o.push(bKeyNA + "-team2_roster");
+			}
+		}
+	}
+
+	//Get all EU data
+	for (var i = 0; i < WEEKS_IN_LCS; i++) {
+		for (var j = 0; j < EU_DAYS_PER_WEEK; j++) {
+			for (var k = 0; k < eu_schedule[i].days[j].matches.length; k++) {
+				bKeyEU = "na-" + (i + 1) + "-" + (j + 1) + "-" + (k + 1);
+				//o.push(bKeyEU + "-match_id");
+				o.push(bKeyEU + "-state");
+				o.push(bKeyEU + "-scheduled_time");
+				o.push(bKeyEU + "-scheduled_time_milliseconds");
+				o.push(bKeyEU + "-load_status");
+
+				var gamesPerMatch = EU_GAMES_PER_MATCH;
+
+				for (var l = 0; l < gamesPerMatch; l++) {
+					o.push(bKeyEU + "-game" + (l + 1));
+				}
+
+				o.push(bKeyEU + "-team1");
+				o.push(bKeyEU + "-team2");
+				o.push(bKeyEU + "-team1_roster");
+				o.push(bKeyEU + "-team2_roster");
+			}
+		}
+	}
+
+	chrome.storage.local.get(o, function(items) {
+		var league;
+		var week;
+		var day;
+		var match;
+		var elem;
+		var game;
+
+		//weeks, days, matches, games assumed in order, since keys were added to o[] in order
+		$.each(items, function(key) {
+			league = key.replace(/([a-z]{2}).*/, "$1");
+			week = key.replace(/[a-z]{2}-(\d{1}).*/, "$1") - 1;
+			day = key.replace(/[a-z]{2}-\d{1}-(\d{1}).*/, "$1") - 1;
+			match = key.replace(/[a-z]{2}-\d{1}-\d{1}-(\d{1}).*/, "$1") - 1;
+			elem = key.replace(/[a-z]{2}-\d{1}-\d{1}-\d{1}-([a-z0-9_]+).*/, "$1");
+
+			var schedule;
+			if (league == "na")
+				schedule = na_schedule;
+			else
+				schedule = eu_schedule;
+
+			if (elem.match(/game[\d]+/)) {
+				game = elem.replace(/game/, '') - 1;
+				schedule[week].days[day].matches[match].games[game] = items[key];
+			} else {
+				schedule[week].days[day].matches[match][elem] = items[key];
+			}
+		});
+
+		showTab(curLeague, curWeek);
+	});
+}
 
 //Break up a match and cache it
 function setMatchIntoCache(match, league, weekNum) {
 	var baseKey = league + "-" + weekNum + "-" + (match.match_day + 1) + "-" + (match.match_num + 1);
+	//console.log('baseKey: ' + baseKey);
 
 	var o = {};
-	o[baseKey + "-match_id"] = match.match_id;
+	//o[baseKey + "-match_id"] = match.match_id;
 	o[baseKey + "-state"] = match.state;
 	o[baseKey + "-scheduled_time"] = match.scheduled_time;
 	o[baseKey + "-scheduled_time_milliseconds"] = match.scheduled_time_milliseconds;
 	o[baseKey + "-load_status"] = match.load_status;
-	chrome.storage.sync.set(o);
+	chrome.storage.local.set(o);
 
-	o = {};
 	$.each(match.games, function(key) {
+		o = {};
 		o[baseKey + "-game" + (key + 1)] = match.games[key];
-		chrome.storage.sync.set(o);
+		chrome.storage.local.set(o);
 	});
 
 	o = {};
 	o[baseKey + "-team1"] = match.team1
-	chrome.storage.sync.set(o);
+	chrome.storage.local.set(o);
 
 	o = {};
 	o[baseKey + "-team2"] = match.team2
-	chrome.storage.sync.set(o);
+	chrome.storage.local.set(o);
 
 	o = {};
 	o[baseKey + "-team1_roster"] = match.team1_roster
-	chrome.storage.sync.set(o);
+	chrome.storage.local.set(o);
 
 	o = {};
 	o[baseKey + "-team2_roster"] = match.team2_roster
-	chrome.storage.sync.set(o);
+	chrome.storage.local.set(o);
 }
 
-//Retrieve cached match data
+/*//Retrieve cached match data
 function getMatchFromCache(match, league, weekNum) {
 	var baseKey = league + "-" + weekNum + "-" + (match.match_day + 1) + "-" + (match.match_num + 1);
 
-	var o = [];
+	var o = {};
 	o.push(baseKey + "-match_id");
 	o.push(baseKey + "-state");
 	o.push(baseKey + "-scheduled_time");
@@ -323,7 +417,7 @@ function getMatchFromCache(match, league, weekNum) {
 	o.push(baseKey + "-team1_roster");
 	o.push(baseKey + "-team2_roster");
 
-	chrome.storage.sync.get(o, function(items) {
+	chrome.storage.local.get(o, function(items) {
 		match.match_id = items[baseKey + "-match_id"];
 		match.state = items[baseKey + "-state"];
 		match.scheduled_time = items[baseKey + "-scheduled_time"];
@@ -338,5 +432,48 @@ function getMatchFromCache(match, league, weekNum) {
 		match.team2 = items[baseKey + "-team2"];
 		match.team1_roster = items[baseKey + "-team1_roster"];
 		match.team2_roster = items[baseKey + "-team2_roster"];
-	})
+	});
+}*/
+
+//===============================
+// Settings
+//===============================
+
+//Attempt to load user settings. Fail or succeed, start loading match data
+function loadAllFromCache() {
+  extSettings = new Settings();
+  extSettings.usability = new UsabilitySettings();
+  extSettings.leagues = new LeagueSettings();
+  extSettings.fantasy = new FantasySettings();
+
+  var o = [];
+  o.push("usabilitySettings");
+  o.push("leagueSettings");
+  o.push("fantasySettings");
+  
+  chrome.storage.local.get(o, function(items) {
+    setSettings(items);    
+	loadAndUseData();
+  });
+}
+
+//Set settings to object, and push up to the form
+function setSettings(items) {
+	if (typeof items["usabilitySettings"] !== "undefined") {
+		extSettings.usability = items["usabilitySettings"];
+		$('#view_mode #' + extSettings.usability.view_mode).click();
+		$('#hide_results').prop('checked', extSettings.usability.hide_results);
+	}
+
+	if (typeof items["leagueSettings"] !== "undefined") {
+		extSettings.leagues = items["leagueSettings"];
+		$('#na_lcs_league').prop('checked', extSettings.leagues.na_lcs_league);
+		$('#eu_lcs_league').prop('checked', extSettings.leagues.eu_lcs_league);
+	}
+
+	if (typeof items["fantasySettings"] !== "undefined") {
+		extSettings.fantasy = items["fantasySettings"];
+		$('#show_fantasy_pts').prop('checked', extSettings.fantasy.show_fantasy_pts);
+		$('#fantasy_mode #' + extSettings.fantasy.view_mode).click();
+	}
 }

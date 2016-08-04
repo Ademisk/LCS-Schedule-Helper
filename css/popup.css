@@ -1,11 +1,103 @@
+/* Settings */
+
+.settingsView {
+	display:none;
+	width:600px;
+	height:500px;
+}
+
+.settingsHeader {
+	width:600px;
+	height:20px;
+	margin:20px 0 5px 0;
+}
+
+.backButton {
+	width:30px;
+	height:25px;
+	float:right;
+	text-align:center;
+	font-size:large;
+	cursor:pointer;
+}
+
+.settingsTitle {
+	float:left;
+	font-size:large;
+}
+
+.settingsContainer {
+    width:598px;
+    height:500px;
+}
+
+.optionSection {
+	margin-bottom:20px;
+}
+
+.optionHeader {
+	font-size:large;
+	color:#ea8282;
+}
+
+.optionContainer {
+
+}
+
+/* Schedule */
+
+.header {
+	width:600px;
+	height:15px;
+	margin-bottom:5px;
+}
+
+.weekSelect {
+	width:580px;
+	float:left;
+}
+
+.settingsButton {
+	width:20px;
+	height:20px;
+	float:right;
+	background-image: url(./../icons/settings.png);
+	background-color:transparent;
+	border:none;
+	cursor:pointer;
+}
+
 .leagueSelect {
 	width:600px;
 	height:20px
 }
 
+.leagueTabSelect {
+	width:298px;
+	height:15px;
+	float:left;
+	border:solid 1px grey;
+	text-align:center;
+	cursor:pointer;
+}
+
+.scheduleView {
+	width:600px;
+	height:500px;
+}
+
 .week {
 	width:35px;
 	float:left;
+}
+
+.weekTabSelect {
+	width:15px;
+	height:15px;
+	margin-left:5px;
+	text-align:center;
+	float:left;
+	cursor:pointer;
 }
 
 .date {
@@ -46,7 +138,7 @@
 
 .weekContainer {
     display: none;
-    width: 594px;
+    width: 598px;
     border: 1pt solid grey;
 }
 
