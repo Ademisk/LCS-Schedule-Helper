@@ -192,6 +192,13 @@ function getAndPopulateSchedule(scheduleData, matchData, league) {
   } else
     alert('error populating schedule');
 
+  schedule = new Array(WEEKS_IN_LCS);
+
+  for (var i = 0; i < WEEKS_IN_LCS; i++) {
+    schedule[i] = new Week();
+    schedule[i].week_num = i + 1;
+  }
+
   //filter out all times for Summer 2016 LCS, NA or EU
   var newScheduleData = jQuery.grep(scheduleData, function(k) {
     //For EU league, remove the 'panel' scheduled match by looking for imageUrl. In NA it's not present
@@ -280,6 +287,13 @@ function getAndPopulateSchedule(scheduleData, matchData, league) {
       }
     }
   });
+
+  if (league == "na")
+    na_schedule = schedule;
+  else
+    eu_schedule = schedule;
+  
+  saveScheduleIntoCache(schedule, league);
 }
 
 //NA is assumed default
@@ -333,7 +347,7 @@ function getWeekMatchResults(league, week) {
 
               //Cache only matches that are finalized
               if (USE_CACHE && match.state == "resolved")
-                setMatchIntoCache(match, curLeague, week.week_num);
+                saveMatchIntoCache(match, curLeague, week.week_num);
 
               //Show match only if it's on the current league and week
               if (league == curLeague && week.week_num == curWeek) {
@@ -861,20 +875,6 @@ function populateTab(league, week) {
   }
 }
 
-//Populate base elements
-function init() {
-  curLeague = "na";
-  na_schedule = new Array(9);
-  eu_schedule = new Array(9);
-
-  for (var i = 0; i < WEEKS_IN_LCS; i++) {
-    na_schedule[i] = new Week();
-    na_schedule[i].week_num = i + 1;
-    eu_schedule[i] = new Week();
-    eu_schedule[i].week_num = i + 1;
-  }
-}
-
 //Attaches events to DOM elements
 function initListeners() {
   //League Select
@@ -962,47 +962,59 @@ function initListeners() {
 
 //Load the app
 function loadAndUseData() {
-  $.when(
-    //NA Data
-    $.ajax({
-      url: API_SCHEDULE_ITEMS,
-      data: {
-        leagueId: NA_LEAGUE_ID
+  if (na_schedule != null && eu_schedule != null) {
+    console.log("League schedules loaded from cache!");
+    setCurWeek();
+
+    if (USE_CACHE)
+      loadCachedMatches();
+    else
+      showTab(curLeague, curWeek);
+  } else {
+    $.when(
+      //NA Data
+      $.ajax({
+        url: API_SCHEDULE_ITEMS,
+        data: {
+          leagueId: NA_LEAGUE_ID
+        },
+        dataType: 'json',
+        method: 'GET'
+      }),
+
+      //EU Data
+      $.ajax({
+        url: API_SCHEDULE_ITEMS,
+        data: {
+          leagueId: EU_LEAGUE_ID
+        },
+        dataType: 'json',
+        method: 'GET'
+      })).then(
+      function(resp1, resp2) {
+        console.log("League schedules retrieved.");
+
+        //Show the schedule times and what teams play
+        getAndPopulateSchedule(resp1[0].scheduleItems, resp1[0].highlanderTournaments, "na");
+        getAndPopulateSchedule(resp2[0].scheduleItems, resp2[0].highlanderTournaments, "eu");
+
+        setCurWeek();   //Needs to be after schedules are set, because it relies on the match dates
+
+        if (USE_CACHE)
+          loadCachedMatches();
+        else
+          showTab(curLeague, curWeek);
       },
-      dataType: 'json',
-      method: 'GET'
-    }),
-
-    //EU Data
-    $.ajax({
-      url: API_SCHEDULE_ITEMS,
-      data: {
-        leagueId: EU_LEAGUE_ID
-      },
-      dataType: 'json',
-      method: 'GET'
-    })).then(
-    function(resp1, resp2) {
-      //Show the schedule times and what teams play
-      getAndPopulateSchedule(resp1[0].scheduleItems, resp1[0].highlanderTournaments, "na");
-      getAndPopulateSchedule(resp2[0].scheduleItems, resp2[0].highlanderTournaments, "eu");
-
-      setCurWeek();
-
-      if (USE_CACHE)
-        loadCachedMatches();
-      else
-        showTab(curLeague, curWeek);
-    },
-    function(resp1, resp2) {
-      alert('failure');
-    }
-  );
+      function(resp1, resp2) {
+        alert('failure');
+      }
+    );
+  }
 }
 
 //Start Here
 document.addEventListener('DOMContentLoaded', function() {
-  init();
+  curLeague = "na";
   initListeners();
 
   //Load settings from cache, then set up the rest of the data

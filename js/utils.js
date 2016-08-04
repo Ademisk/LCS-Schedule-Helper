@@ -262,6 +262,37 @@ function setAndStartTimers(match) {
 }
 
 //========================================================================
+// Schedule Caching
+//========================================================================
+
+//Retrieves the schedules for leagues
+function loadCachedSchedule() {
+	o = [];
+
+	o.push('na_schedule');
+	o.push('eu_schedule');
+
+	chrome.storage.local.get(o, function(items){
+		na_schedule = items['na_schedule'];
+		eu_schedule = items['eu_schedule'];
+
+		loadAndUseData();
+	});
+}
+
+//Saves just the week and day data. And matchID. Basically, everything retrieved from the first API call
+function saveScheduleIntoCache(schedule, league) {
+	var o = {};
+
+	if (league == "na")
+		o["na_schedule"] = schedule;
+	else
+		o["eu_schedule"] = schedule;
+
+	chrome.storage.local.set(o);
+}
+
+//========================================================================
 // Match Caching
 //========================================================================
 function loadCachedMatches() {
@@ -299,7 +330,7 @@ function loadCachedMatches() {
 	for (var i = 0; i < WEEKS_IN_LCS; i++) {
 		for (var j = 0; j < EU_DAYS_PER_WEEK; j++) {
 			for (var k = 0; k < eu_schedule[i].days[j].matches.length; k++) {
-				bKeyEU = "na-" + (i + 1) + "-" + (j + 1) + "-" + (k + 1);
+				bKeyEU = "eu-" + (i + 1) + "-" + (j + 1) + "-" + (k + 1);
 				//o.push(bKeyEU + "-match_id");
 				o.push(bKeyEU + "-state");
 				o.push(bKeyEU + "-scheduled_time");
@@ -355,7 +386,7 @@ function loadCachedMatches() {
 }
 
 //Break up a match and cache it
-function setMatchIntoCache(match, league, weekNum) {
+function saveMatchIntoCache(match, league, weekNum) {
 	var baseKey = league + "-" + weekNum + "-" + (match.match_day + 1) + "-" + (match.match_num + 1);
 	//console.log('baseKey: ' + baseKey);
 
@@ -390,56 +421,11 @@ function setMatchIntoCache(match, league, weekNum) {
 	chrome.storage.local.set(o);
 }
 
-/*//Retrieve cached match data
-function getMatchFromCache(match, league, weekNum) {
-	var baseKey = league + "-" + weekNum + "-" + (match.match_day + 1) + "-" + (match.match_num + 1);
-
-	var o = {};
-	o.push(baseKey + "-match_id");
-	o.push(baseKey + "-state");
-	o.push(baseKey + "-scheduled_time");
-	o.push(baseKey + "-scheduled_time_milliseconds");
-	o.push(baseKey + "-load_status");
-
-	//Get 3 games for na, 2 for eu
-	var limit = 0;
-	if (league == "na")
-		limit = NA_GAMES_PER_MATCH;
-	else
-		limit = EU_GAMES_PER_MATCH;
-
-	for (var i = 0; i < limit; i++) {
-		o.push(baseKey + "-game" + (i + 1));
-	}
-
-	o.push(baseKey + "-team1");
-	o.push(baseKey + "-team2");
-	o.push(baseKey + "-team1_roster");
-	o.push(baseKey + "-team2_roster");
-
-	chrome.storage.local.get(o, function(items) {
-		match.match_id = items[baseKey + "-match_id"];
-		match.state = items[baseKey + "-state"];
-		match.scheduled_time = items[baseKey + "-scheduled_time"];
-		match.scheduled_time_milliseconds = items[baseKey + "-scheduled_time_milliseconds"];
-		match.load_status = items[baseKey + "-load_status"];
-
-		for (var i = 0; i < limit; i++) {
-			match.games.push(items[baseKey + "-game" + (i + 1)]);
-		}
-
-		match.team1 = items[baseKey + "-team1"];
-		match.team2 = items[baseKey + "-team2"];
-		match.team1_roster = items[baseKey + "-team1_roster"];
-		match.team2_roster = items[baseKey + "-team2_roster"];
-	});
-}*/
-
 //===============================
 // Settings
 //===============================
 
-//Attempt to load user settings. Fail or succeed, start loading match data
+//Attempt to load user settings. Fail or succeed, load schedule data.
 function loadAllFromCache() {
   extSettings = new Settings();
   extSettings.usability = new UsabilitySettings();
@@ -452,8 +438,8 @@ function loadAllFromCache() {
   o.push("fantasySettings");
   
   chrome.storage.local.get(o, function(items) {
-    setSettings(items);    
-	loadAndUseData();
+    setSettings(items);
+    loadCachedSchedule();
   });
 }
 
