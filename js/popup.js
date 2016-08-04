@@ -292,7 +292,7 @@ function getAndPopulateSchedule(scheduleData, matchData, league) {
     na_schedule = schedule;
   else
     eu_schedule = schedule;
-  
+
   saveScheduleIntoCache(schedule, league);
 }
 
@@ -923,7 +923,7 @@ function initListeners() {
   });
 
   //Settings to save on update
-  $('.optionCheck').change(function(t) {
+  $('.optionCheck').click(function(t) {
     var o = {};
     if ($(t.target).hasClass('usability')) {
       extSettings.usability[t.target.id] = t.target.checked;
@@ -938,10 +938,10 @@ function initListeners() {
       o['fantasySettings'] = extSettings.fantasy;
     }
 
-    chrome.storage.sync.set(o);
+    chrome.storage.local.set(o);
   });
 
-  $('.optionRadio').change(function(t) {
+  $('.optionRadio').click(function(t) {
     var o = {};
     if ($(t.currentTarget).hasClass('usability')) {
       extSettings.usability[t.currentTarget.id] = t.target.id;
@@ -956,7 +956,7 @@ function initListeners() {
       o['fantasySettings'] = extSettings.fantasy;
     }
 
-    chrome.storage.sync.set(o);
+    chrome.storage.local.set(o);
   });
 }
 

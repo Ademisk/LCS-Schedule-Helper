@@ -447,7 +447,7 @@ function loadAllFromCache() {
 function setSettings(items) {
 	if (typeof items["usabilitySettings"] !== "undefined") {
 		extSettings.usability = items["usabilitySettings"];
-		$('#view_mode #' + extSettings.usability.view_mode).click();
+		$('#view_mode #' + extSettings.usability.view_mode).prop('checked', true);
 		$('#hide_results').prop('checked', extSettings.usability.hide_results);
 	}
 
@@ -460,6 +460,6 @@ function setSettings(items) {
 	if (typeof items["fantasySettings"] !== "undefined") {
 		extSettings.fantasy = items["fantasySettings"];
 		$('#show_fantasy_pts').prop('checked', extSettings.fantasy.show_fantasy_pts);
-		$('#fantasy_mode #' + extSettings.fantasy.view_mode).click();
+		$('#fantasy_mode #' + extSettings.fantasy.fantasy_mode).prop('checked', true);
 	}
 }
