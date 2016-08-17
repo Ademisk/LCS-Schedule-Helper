@@ -175,6 +175,7 @@ a.button {
 	float:left;
 	width:15px;
 	margin-left:5px;
+	cursor:pointer;
 }
 
 .teamIcon {

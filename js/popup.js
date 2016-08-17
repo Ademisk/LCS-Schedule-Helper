@@ -39,7 +39,6 @@ var EU_BRACKET_HASH = "88a5aa52-4461-4a15-8fb5-83c8b5265f93";
 var USE_CACHE = true;
 
 //Settings
-
 function Settings() {
   this.usability = null, //Settings for the view mode
     this.leagues = null, //A set of leagues w/ checkboxes by them. Checked ones appear as tabs like EU and NA. All on by default
@@ -62,16 +61,15 @@ function FantasySettings() {
 }
 
 //Game Data
-
 function Week() {
   this.week_num = 0,
-    this.days = [] //2 for EU, 3 for NA
+  this.days = [] //2 for EU, 3 for NA
 };
 
 function Day() {
   this.day_date = "",
-    this.day_date_epoch = 0,
-    this.matches = [] //2 and 4 for NA, 5 for EU
+   this.day_date_epoch = 0,
+   this.matches = [] //2 and 4 for NA, 5 for EU
 };
 
 function Match() {
