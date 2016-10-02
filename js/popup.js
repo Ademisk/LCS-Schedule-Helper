@@ -1,6 +1,7 @@
+// @flow
+
 //eSports API breakdown: https://gist.github.com/levi/e7e5e808ac0119e154ce
 //Fantasy API breakdown: https://gist.github.com/brcooley/8429583561c47b248f80
-
 
 //var PROXY = 'https://us.hidester.com/proxy.php?u='
 var CORS_PROXY = "http://cors.io/?u=";
@@ -31,37 +32,31 @@ var EU_DAY1_AND_2_MATCHES = 5;
 var EU_GAMES_PER_MATCH = 2;
 
 var NA_LEAGUE_HASH = "472c44a9-49d3-4de4-912c-aa4151fd1b3b";
-var NA_BRACKET_HASH = "2a6a824d-3009-4d23-9c83-859b7a9c2629";
+//var NA_BRACKET_HASH = "2a6a824d-3009-4d23-9c83-859b7a9c2629";
 
 var EU_LEAGUE_HASH = "f7afa181-4580-48c0-af26-4b3d70fe21eb";
-var EU_BRACKET_HASH = "88a5aa52-4461-4a15-8fb5-83c8b5265f93";
+//var EU_BRACKET_HASH = "88a5aa52-4461-4a15-8fb5-83c8b5265f93";
 
-var USE_CACHE = true;
+var USE_CACHE = false;
 
-//Settings
-function Settings() {
-  this.usability = null, //Settings for the view mode
-    this.leagues = null, //A set of leagues w/ checkboxes by them. Checked ones appear as tabs like EU and NA. All on by default
-    this.fantasy = null //fantasy league options
+function League() {
+  this.league_id = 0,
+  this.league_hash = "",
+  this.league_name = "",
+  this.live_stream_url = "",
+  this.brackets = []
 }
 
-function UsabilitySettings() {
-  this.view_mode = "regular_mode",  //The type of view: Original, Original + fantasy, Lite
-   this.hide_results = false        //Hides match results. Game results are shown when game selected. Hides fantasy pts too
-}
-
-function LeagueSettings() {
-  this.na_lcs_league = true,
-  this.eu_lcs_league = true
-}
-
-function FantasySettings() {
-  this.fantasy_mode = "two_games", //Count-first-2-games, or count-best-game
-  this.show_fantasy_pts = false   //Hides results until user clicks on game
+function Bracket() {
+  this.bracket_name = "",
+  this.bracket_id = "",
+  this.block_prefix = "",
+  this.weeks = []
 }
 
 //Game Data
 function Week() {
+  this.block_label = "",   //Ex. week number, 'Round 1', etc
   this.week_num = 0,
   this.days = [] //2 for EU, 3 for NA
 };
@@ -161,13 +156,40 @@ function MatchTimer() {
   this.seconds = 0
 }
 
+//Settings
+function Settings() {
+  this.usability = null, //Settings for the view mode
+    this.leagues = null, //A set of leagues w/ checkboxes by them. Checked ones appear as tabs like EU and NA. All on by default
+    this.fantasy = null //fantasy league options
+}
+
+function UsabilitySettings() {
+  this.view_mode = "regular_mode",  //The type of view: Original, Original + fantasy, Lite
+   this.hide_results = false        //Hides match results. Game results are shown when game selected. Hides fantasy pts too
+}
+
+function LeagueSettings() {
+  this.na_lcs_league = true,
+  this.eu_lcs_league = true
+}
+
+function FantasySettings() {
+  this.fantasy_mode = "two_games", //Count-first-2-games, or count-best-game
+  this.show_fantasy_pts = false   //Hides results until user clicks on game
+}
+
 var intervalId;
 var timerObjects = []; //When a tab changes, old timers get erased and new match timers for the week are added
 
+//new container
+var na_league;
+
+//deprecated
 var na_schedule;
 var eu_schedule;
 
-var curLeague = "";
+var curLeague;
+var curBracket = -1;
 var curWeek = -1;
 
 var liveStreamCounter = 0;
@@ -175,129 +197,158 @@ var liveStreamCounter = 0;
 var extSettings;
 
 //Fill in the schedule with dates
-function getAndPopulateSchedule(scheduleData, matchData, league) {
-  var leagueID = "";
-  var bracketID = "";
-  var schedule = null;
-  if (league == "na") {
-    leagueID = NA_LEAGUE_HASH;
-    bracketID = NA_BRACKET_HASH;
-    schedule = na_schedule;
-  } else if (league == "eu") {
-    leagueID = EU_LEAGUE_HASH;
-    bracketID = EU_BRACKET_HASH;
-    schedule = eu_schedule;
-  } else
-    alert('error populating schedule');
+function getAndPopulateSchedule(scheduleItems, highlanderTournaments) {
+  //var leagueHash = curLeague.league_hash;
+  var leagueHash = NA_LEAGUE_HASH;
 
-  schedule = new Array(WEEKS_IN_LCS);
-
-  for (var i = 0; i < WEEKS_IN_LCS; i++) {
-    schedule[i] = new Week();
-    schedule[i].week_num = i + 1;
-  }
-
-  //filter out all times for Summer 2016 LCS, NA or EU
-  var newScheduleData = jQuery.grep(scheduleData, function(k) {
-    //For EU league, remove the 'panel' scheduled match by looking for imageUrl. In NA it's not present
-    if (k['tournament'] == leagueID && k['content'].indexOf('imageUrl') == -1)
+  //filter out all times for NA Summer 2016 LCS
+  var newScheduleItems = jQuery.grep(scheduleItems, function(k) {
+    //Filter out any panels
+    if (k['tournament'] == leagueHash && k['bracket'] != undefined)
       return k;
   });
 
-  newScheduleData.sort(sortMatches);
+  newScheduleItems.sort(sortScheduleItems);
 
-  var tournamentData;
-  for (var i = 0; i < matchData.length; i++) {
-    if (matchData[i].id == leagueID)
-      tournamentData = matchData[i];
+  //Selects for NA Summer split
+  var highlanderTournament;
+  for (var i = 0; i < highlanderTournaments.length; i++) {
+    if (highlanderTournaments[i].id == leagueHash)
+      highlanderTournament = highlanderTournaments[i];
   }
 
-  var gameHashDeferred = [];
-  var matchNum = 0;
-  var day = 0;
-  var oldDay = 0;
-  $.each(newScheduleData, function(key) {
-    var week = newScheduleData[key].tags["blockLabel"];
+  //This init section will probably move to the options page
+  na_league = new League();
+  na_league.league_id = NA_LEAGUE_ID;
+  na_league.league_hash = NA_LEAGUE_HASH;
+  na_league.league_name = highlanderTournament.title;
+  na_league.live_stream_url = LIVE_NA_STREAM;
+  na_league.brackets = new Array();
 
-    if (week.length == 1) {
-      oldDay = day;
-      day = newScheduleData[key].tags["subBlockLabel"];
-      if (oldDay != day)
-        matchNum = 0;
-      else
-        matchNum++;
+  var bracket;
+  var week;
+  var day;
+  $.each(newScheduleItems, function(key) {
+    var bracketID = newScheduleItems[key].bracket
 
-      //In EU, week 9 day 2, there are 2 extra games returned that have no presence on the schedule. Presumably these are tie-breakers that 
-      //never had to be used, so we'll ignore them for now
-      if (matchNum < 5) {
-        var dt = new Date(newScheduleData[key].scheduledTime);
-        var hours = dt.getHours();
-        var amPmString;
-        if (hours == 12) {
-          amPmString = "PM";
-        } else if (hours > 12) {
-          amPmString = "PM";
-          hours -= 12;
-        } else
-          amPmString = "AM";
-
-        var dayDate = weekday[dt.getDay()] + ', ' + month[dt.getMonth()] + ' ' + dt.getDate() + ' - Day ' + day;
-
-        if (schedule[week - 1].days[day - 1] == null)
-          schedule[week - 1].days[day - 1] = new Day();
-        if (schedule[week - 1].days[day - 1].day_date == "") {
-          schedule[week - 1].days[day - 1].day_date = dayDate;
-          schedule[week - 1].days[day - 1].day_date_epoch = newScheduleData[key].scheduledTime;
-        }
-
-        m = new Match();
-        m.match_day = parseInt(day - 1);
-        m.match_num = matchNum;
-        m.match_id = newScheduleData[key].match;
-        m.load_status = "not started";
-        m.team1 = new Team();
-        m.team2 = new Team();
-        m.team1.name_stub = tournamentData.brackets[bracketID].matches[m.match_id].name.split("-vs-")[0];
-        m.team1.icon = teamIcon[m.team1.name_stub];
-        m.team2.name_stub = tournamentData.brackets[bracketID].matches[m.match_id].name.split("-vs-")[1];
-        m.team2.icon = teamIcon[m.team2.name_stub];
-        m.scheduled_time = hours + ':00' + amPmString;
-        m.scheduled_time_milliseconds = dt.getTime();
-        m.state = tournamentData.brackets[bracketID].matches[m.match_id].state;
-
-        //Get the limited game data (gameId, and gameRealm)
-        //If 3rd game for NA doesn't exist, game_id will be undefined
-        var matchGames = tournamentData.brackets[bracketID].matches[m.match_id].games;
-        m.games = new Array();
-        for (g in matchGames) {
-          var game = new Game();
-          game.game_num = parseInt(matchGames[g].name.replace("G", ""));
-          game.game_realm = matchGames[g].gameRealm;
-          game.game_id = matchGames[g].gameId;
-          game.game_id_hash = matchGames[g].id;
-          game.result = "not played";
-          m.games.push(game);
-        }
-
-        m.games.sort(sortGames);
-
-        schedule[week - 1].days[day - 1].matches.push(m);
+    if (bracketID != undefined) {
+      //Create new bracket if previous ID doesn't match
+      if (na_league.brackets.length == 0 || bracket.bracket_id != bracketID) {
+        na_league.brackets.push(new Bracket());
+        bracket = na_league.brackets.slice(-1)[0];
+        bracket.bracket_name = highlanderTournament.brackets[bracketID].groupName;
+        bracket.bracket_id = bracketID;
+        bracket.weeks = new Array();
       }
+
+      //Every time we reach a new week, we add it to the schedule.
+      //New week is determined by incrementing week, or by changing blockLabel if week isn't there
+      //Matches are sorted by date, so we are guaranteed to be appending in the proper order
+      var weekNum = -1;
+      var blockPrefix = "";
+      if (newScheduleItems[key].tags["blockPrefix"] != undefined && newScheduleItems[key].tags["blockPrefix"] == "week") {
+        blockPrefix = newScheduleItems[key].tags["blockPrefix"];
+        weekNum = parseInt(newScheduleItems[key].tags["blockLabel"]);
+      }
+
+      if ((weekNum != -1 && bracket.weeks.length < weekNum) || week.block_label != newScheduleItems[key].tags["blockLabel"]) {
+        bracket.weeks.push(new Week());
+        week = bracket.weeks.slice(-1)[0];
+        week.block_label = newScheduleItems[key].tags["blockLabel"];
+        week.week_num = weekNum;
+        week.days = new Array();
+
+        bracket.block_prefix = newScheduleItems[key].tags["blockPrefix"];
+      }
+
+      
+      //Now we add days
+      if (week.days.length == 0) {
+        week.days.push(new Day());
+        day = week.days.slice(-1)[0];
+        day.day_date = computeDayDate(newScheduleItems[key].scheduledTime, week.days.length);
+        day.day_date_epoch = newScheduleItems[key].scheduledTime;
+        day.matches = new Array();
+      } else {
+        var curDate = new Date(day.day_date_epoch);
+        curDate.setHours(0);
+        curDate.setMinutes(0);
+        curDate.setSeconds(0);
+        var newDate = new Date(newScheduleItems[key].scheduledTime);
+        newDate.setHours(0);
+        newDate.setMinutes(0);
+        newDate.setSeconds(0);
+
+        if (newDate > curDate) {
+          week.days.push(new Day());
+          day = week.days.slice(-1)[0];
+          day.day_date = computeDayDate(newScheduleItems[key].scheduledTime, week.days.length);
+          day.day_date_epoch = newScheduleItems[key].scheduledTime;
+          day.matches = new Array();
+        }
+      }
+
+      var dt = new Date(newScheduleItems[key].scheduledTime);
+      var hours = dt.getHours();
+      var amPmString;
+      if (hours == 12) {
+        amPmString = "PM";
+      } else if (hours > 12) {
+        amPmString = "PM";
+        hours -= 12;
+      } else
+        amPmString = "AM";
+
+      var bracketID = bracket.bracket_id;
+      m = new Match();
+      m.match_day = week.days.length;
+      m.match_num = day.matches.length + 1;
+      m.match_id = newScheduleItems[key].match;
+      m.load_status = "not started";
+      m.team1 = new Team();
+      m.team2 = new Team();
+      m.team1.name_stub = highlanderTournament.brackets[bracketID].matches[m.match_id].name.split("-vs-")[0];
+      m.team1.icon = teamIcon[m.team1.name_stub];
+      m.team2.name_stub = highlanderTournament.brackets[bracketID].matches[m.match_id].name.split("-vs-")[1];
+      m.team2.icon = teamIcon[m.team2.name_stub];
+      m.scheduled_time = hours + ':00' + amPmString;
+      m.scheduled_time_milliseconds = dt.getTime();
+      m.state = highlanderTournament.brackets[bracketID].matches[m.match_id].state;
+
+      //Get the limited game data (gameId, and gameRealm)
+      //If 3rd game for NA doesn't exist, game_id will be undefined
+      var matchGames = highlanderTournament.brackets[bracketID].matches[m.match_id].games;
+      m.games = new Array();
+      for (g in matchGames) {
+        var game = new Game();
+        game.game_num = parseInt(matchGames[g].name.replace("G", ""));
+        game.game_realm = matchGames[g].gameRealm;
+        game.game_id = matchGames[g].gameId;
+        game.game_id_hash = matchGames[g].id;
+        game.result = "not played";
+        m.games.push(game);
+      }
+
+      m.games.sort(sortGames);
+
+      day.matches.push(m);
     }
   });
 
-  if (league == "na")
+  /*if (league == NA_LEAGUE_ID)
     na_schedule = schedule;
-  else
-    eu_schedule = schedule;
+  else if (league == EU_LEAGUE_ID)
+    eu_schedule = schedule;*/
 
-  saveScheduleIntoCache(schedule, league);
+  if (USE_CACHE)
+    saveScheduleIntoCache(schedule, league);
 }
 
 //NA is assumed default
-function getWeekMatchResults(league, week) {
+function getWeekMatchResults() {
   var req = [];
-  var leagueHash = league == "na" ? NA_LEAGUE_HASH : EU_LEAGUE_HASH;
+  var leagueHash = curLeague.league_hash;
+  var week = curLeague.brackets[curBracket - 1].weeks[curWeek - 1];
 
 
   for (var i = 0; i < week.days.length; i++) {
@@ -345,12 +396,13 @@ function getWeekMatchResults(league, week) {
 
               //Cache only matches that are finalized
               if (USE_CACHE && match.state == "resolved")
-                saveMatchIntoCache(match, curLeague, week.week_num);
+                saveMatchIntoCache(match, curLeague, week.block_name, week.week_num);
 
-              //Show match only if it's on the current league and week
+              /*//Show match only if it's on the current league and week
               if (league == curLeague && week.week_num == curWeek) {
                 showMatch(match);
-              }
+              }*/
+              showMatch(match);
             });
           }));
         })(week.days[i].matches[j]);
@@ -359,7 +411,7 @@ function getWeekMatchResults(league, week) {
   }
 
   return $.when.apply($, req).done(function() {
-    console.log("Matches for " + league + " week " + curWeek + " resolved");
+    console.log("Matches for " + curLeague + " week " + curWeek + " resolved");
   });
 }
 
@@ -570,91 +622,126 @@ function parseGameResults(match, gameNum, data) {
 }
 
 //Determines current week. League defaults to NA
-function setCurWeek() {
+function setCurBracketAndWeek() {
   var dt = new Date();
   var curWeekMonday = new Date();
   curWeekMonday.setDate(dt.getDate() - (dt.getDay() == 0 ? 6 : dt.getDay()));
   var curWeekSunday = new Date();
   curWeekSunday.setDate(curWeekMonday.getDate() + 6);
 
-  for (var i = 0; i < WEEKS_IN_LCS && curWeek == -1; i++) {
-    var tempDate = new Date(na_schedule[i].days[0].day_date_epoch);
-    if (curWeekMonday <= tempDate && tempDate <= curWeekSunday)
-      curWeek = i + 1;
+  var bracketIndex = 0;
+  var weekIndex = 0;
+  while (curWeek == -1) {
+    for (; bracketIndex < na_league.brackets.length && curWeek == -1; bracketIndex++) {
+      weekIndex = 0;
+      for (; weekIndex < na_league.brackets[bracketIndex].weeks.length && curWeek == -1; weekIndex++) {
+        var tempDate = new Date(na_league.brackets[bracketIndex].weeks[weekIndex].days[0].day_date_epoch);
+        if (curWeekMonday <= tempDate && tempDate <= curWeekSunday) {
+          curBracket = bracketIndex + 1;
+          curWeek = weekIndex + 1;
+        }
+      }
+    }
   }
 
-  //If <, then before tournament begins, so 1st week. If >, then after tournament, so last week
-  if (curWeek == -1) {
-    if (dt < new Date(na_schedule[0].days[0].day_date_epoch))
-      curWeek = 1;
-    else if (dt > new Date(na_schedule[8].days[1].day_date_epoch))
-      curWeek = 9
+  if (curWeek == -1 || curBracket == -1) {
+    var curDate = new Date();
+
+    //If date past last bracket
+    if (curDate > new Date(na_league.brackets.slice(-1)[0].weeks.slice(-1)[0].days[0].day_date_epoch)) {
+      curBracket = na_league.brackets.length;
+      curWeek = na_league.brackets.slice(-1)[0].weeks.length;
+    }
   }
 }
 
-//Shows specific week of a league
-function showTab(league, week) {
-  curLeague = league == null ? curLeague : league;
-  curWeek = week == null ? curWeek : week;
+//Build and display the brackets to select
+function showBracketSelect() {
+  var bracketOpt = "";
+  $.each(curLeague.brackets, function(key, val) {
+    if (key == curBracket - 1)
+      bracketOpt += createBracketOptionHTML(val.bracket_name, "selected");
+    else
+      bracketOpt += createBracketOptionHTML(val.bracket_name, "");
+  });
+  $('#bracket_select').html('').append(bracketOpt);
+  setBracketListeners();
+}
 
-  //reset all timers after old tab is gone
-  stopAndClearTimers();
-  //Reset the livestream counter
-  liveStreamCounter = 0;
+//Hook up the listeners to brackets dropdown
+function setBracketListeners() {
+  $('#bracket_select').change(function(key, val) {
+    curBracket = key.target.selectedIndex + 1;
+    curWeek = 1;
 
-  var schedule;
-  if (curLeague == "na")
-    schedule = na_schedule;
-  else
-    schedule = eu_schedule;
+    showWeekSelect();
+    showTab();
+  });
+}
+
+//Build and display the week select
+function showWeekSelect() {
+  $('#block_name').html(curLeague.brackets[curBracket - 1].block_name);
+  var weekTab = "";
+  for (var i = 0; i < curLeague.brackets[curBracket - 1].weeks.length; i++) {
+    weekTab += createWeekTabHTML(i + 1);
+  }
+  $('#week_select').html('').append(weekTab);
+  $('#week_select').children().eq(curWeek - 1).addClass('selected');
+
+  setWeekListeners();
+}
+
+//Hook up the listeners to week tabs
+function setWeekListeners() {
+  $.each($('#week_select').children(), function(key, val) {
+    $(val).click(function(val) {
+      $('#week_select').children().eq(curWeek - 1).removeClass('selected');
+      $(val.target).addClass('selected');
+      curWeek = key + 1;
+
+      showTab();
+    });
+  });
+}
+
+//Shows specific bracket and week of a league
+function showTab() {
+  var weekHtml = createWeekScheduleHTML(curLeague.brackets[curBracket - 1].weeks[curWeek - 1]);
+  $('#week').html('').append(weekHtml);
+  setGameListenersForWeek();
+
+  stopAndClearTimers();   //reset countdown timers (if any) for new tab
+  liveStreamCounter = 0;  //Reset the livestream counter
 
   //Get cur weeks data. No preloading for the other weeks as the API hates being hit >30 times a second
-  getWeekMatchResults(curLeague, schedule[curWeek - 1]);
+  getWeekMatchResults();
 
-  //Add styles to league and week tab
-  $('#' + curLeague).removeClass('unselected').addClass('selected');
-  if (curLeague == "na")
-    $('#eu').removeClass('selected').addClass('unselected');
-  else
-    $('#na').removeClass('selected').addClass('unselected');
-
-  for (var i = 0; i < WEEKS_IN_LCS; i++) {
-    if (i + 1 == curWeek)
-      $('#week' + (i + 1) + '_select').removeClass('unselected').addClass('selected');
-    else
-      $('#week' + (i + 1) + '_select').removeClass('selected').addClass('unselected');
-  }
-
-  if (curLeague == "na") {
-    $('.euDay').hide();
-    $('.euMatch').hide();
-    $('.euGame').hide();
-
-    $('.naDay').show();
-    $('.naMatch').show();
-    $('.naGame').show();
-  } else if (curLeague == "eu") {
-    $('.naDay').hide();
-    $('.naMatch').hide();
-    $('.naGame').hide();
-
-    $('.euDay').show();
-    $('.euMatch').show();
-    $('.euGame').show();
-  }
-
-  $('.weekContainer').hide();
-  populateTab(curLeague, curWeek);
+  //$('.weekContainer').hide();
+  populateTab();
   $('#week').show();
+}
+
+function setGameListenersForWeek() {
+  var days = $('.day');
+  for (var i = 0; i < days.length; i++) {
+    var matches = $(days[i]).find('.match');
+    for (var j = 0; j < matches.length; j++) {
+      var games = $(matches[j]).find('.gameTab');
+      for (var k = 0; k < games.length; k++) {
+        (function(dayNum, matchNum, gameNum) {
+          $(games[gameNum]).click(function() {
+            getAndShowMatch(dayNum, matchNum, gameNum);
+          })
+        })(i, j, k);
+      }
+    }
+  }
 }
 
 //Selects match and shows specific game num
 function getAndShowMatch(dayNum, matchNum, gameNum) {
-  var match;
-  if (curLeague == "na")
-    match = na_schedule[curWeek - 1].days[dayNum].matches[matchNum];
-  else
-    match = eu_schedule[curWeek - 1].days[dayNum].matches[matchNum];
+  var match = curLeague.brackets[curBracket - 1].weeks[curWeek - 1].days[dayNum].matches[matchNum];
 
   showMatch(match, gameNum);
 }
@@ -681,7 +768,7 @@ function showMatch(match, gameNum) {
       $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #team1_roster' + ' #mid #player_name').html('In Progress');
       match.state = "in progress";
 
-      var liveStream = curLeague == "na" ? LIVE_NA_STREAM : LIVE_EU_STREAM;
+      var liveStream = na_league.live_stream_url;
       liveStream += (liveStreamCounter++); //For every new live stream, add
 
       $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #matchHeader #game_stream').show()
@@ -757,11 +844,7 @@ function showGame(match, game) {
   if (game == 0) { //Display data aggregated from all games in match
     $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #matchHeader #game_stream').hide();
     //The data
-    var m;
-    if (curLeague == "na")
-      m = na_schedule[curWeek - 1].days[day].matches[match.match_num];
-    else
-      m = eu_schedule[curWeek - 1].days[day].matches[match.match_num];
+    var m = na_league.brackets[curBracket - 1].weeks[curWeek - 1].days[day].matches[match.match_num];
 
     //Set team results
     var t1Style;
@@ -795,12 +878,7 @@ function showGame(match, game) {
     }
   } else {
     //The data
-    var curGame;
-    if (curLeague == "na") {
-      curGame = na_schedule[curWeek - 1].days[day].matches[match.match_num].games[game - 1]; //Subtract 1 from game because 0 is reserved for the 'All' tab
-    } else {
-      curGame = eu_schedule[curWeek - 1].days[day].matches[match.match_num].games[game - 1]; //Subtract 1 from game because 0 is reserved for the 'All' tab
-    }
+    var curGame = na_league.brackets[curBracket - 1].weeks[curWeek - 1].days[day].matches[match.match_num].games[game - 1]; //Subtract 1 from game because 0 is reserved for the 'All' tab
 
     if (curGame.result == "not played") {
       $('#day' + (match.match_day + 1) + ' #match' + (match.match_num + 1) + ' #team1_roster' + ' #mid #player_name').html('Not Played');
@@ -852,64 +930,72 @@ function showGame(match, game) {
 }
 
 //Populates a week with match result data
-function populateTab(league, week) {
-  var schedule;
-  if (league == "na")
-    schedule = na_schedule;
-  else
-    schedule = eu_schedule;
+function populateTab() {
+  var league = na_league;
 
-  for (var i = 0; i < schedule[week - 1].days.length; i++) {
-    $('#day' + (i + 1) + ' #date').html(schedule[week - 1].days[i].day_date)
+  for (var i = 0; i < league.brackets[curBracket - 1].weeks[curWeek - 1].days.length; i++) {
+    $('#day' + (i + 1) + ' #date').html(league.brackets[curBracket - 1].weeks[curWeek - 1].days[i].day_date)
 
     //Populate matches
-    for (var j = 0; j < schedule[week - 1].days[i].matches.length; j++) {
-      $('#day' + (i + 1) + ' #match' + (j + 1) + ' #matchTime').html(schedule[week - 1].days[i].matches[j].scheduled_time)
-      $('#day' + (i + 1) + ' #match' + (j + 1) + ' #team1_icon').attr('src', teamIcon[schedule[week - 1].days[i].matches[j].team1.name_stub]);
-      $('#day' + (i + 1) + ' #match' + (j + 1) + ' #team2_icon').attr('src', teamIcon[schedule[week - 1].days[i].matches[j].team2.name_stub]);
+    for (var j = 0; j < league.brackets[curBracket - 1].weeks[curWeek - 1].days[i].matches.length; j++) {
+      $('#day' + (i + 1) + ' #match' + (j + 1) + ' #matchTime').html(league.brackets[curBracket - 1].weeks[curWeek - 1].days[i].matches[j].scheduled_time)
+      $('#day' + (i + 1) + ' #match' + (j + 1) + ' #team1_icon').attr('src', teamIcon[league.brackets[curBracket - 1].weeks[curWeek - 1].days[i].matches[j].team1.name_stub]);
+      $('#day' + (i + 1) + ' #match' + (j + 1) + ' #team2_icon').attr('src', teamIcon[league.brackets[curBracket - 1].weeks[curWeek - 1].days[i].matches[j].team2.name_stub]);
 
-      showMatch(schedule[week - 1].days[i].matches[j]);
+      showMatch(league.brackets[curBracket - 1].weeks[curWeek - 1].days[i].matches[j]);
     }
+  }
+}
+
+//Load the app
+function loadAndUseData() {
+  if (curLeague != null) {
+    console.log("League schedules loaded from cache!");
+    setCurBracketAndWeek();   //Needs to be after schedules are set, because it relies on the match dates
+    showBracketSelect();
+    showWeekSelect();
+
+    if (USE_CACHE)
+      loadCachedMatches();
+    else
+      showTab(curLeague, curWeek);
+  } else {
+    //NA Data
+    $.ajax({
+      url: API_SCHEDULE_ITEMS,
+      data: {
+        leagueId: NA_LEAGUE_ID//curLeague.league_id
+      },
+      dataType: 'json',
+      method: 'GET'
+    }).then(
+      function(resp) {
+        console.log("League schedules retrieved.");
+
+        //Build schedule objects
+        getAndPopulateSchedule(resp.scheduleItems, resp.highlanderTournaments);
+
+
+        setCurBracketAndWeek();   //Needs to be after schedules are set, because it relies on the match dates
+        curLeague = na_league;    //Temp! will move to options most likely
+
+        showBracketSelect();
+        showWeekSelect();
+
+        if (USE_CACHE)
+          loadCachedMatches();
+        else
+          showTab();
+      },
+      function(resp) {
+        alert('failure');
+      }
+    );
   }
 }
 
 //Attaches events to DOM elements
 function initListeners() {
-  //League Select
-  $('#eu').click(function() {
-    showTab("eu", null);
-  });
-
-  $('#na').click(function() {
-    showTab("na", null);
-  });
-
-  //Week Select
-  for (var i = 1; i <= WEEKS_IN_LCS; i++) {
-    (function(i) {
-      $('#week' + i + '_select').click(function() {
-        showTab(null, i);
-      })
-    })(i);
-  }
-
-  //Game Select
-  //Assumes elements all in order
-  days = $('.naDay,.euDay');
-  for (var i = 0; i < days.length; i++) {
-    matches = $(days[i]).find('.naMatch,.euMatch');
-    for (var j = 0; j < matches.length; j++) {
-      games = $(matches[j]).find('.naGame,.euGame');
-      for (var k = 0; k < games.length; k++) {
-        (function(dayNum, matchNum, gameNum) {
-          $(games[gameNum]).click(function() {
-            getAndShowMatch(dayNum, matchNum, gameNum);
-          })
-        })(i, j, k);
-      }
-    }
-  }
-
   //Settings Page
   $('#settings_button').click(function() {
     $('#schedule_view').hide();
@@ -956,65 +1042,49 @@ function initListeners() {
 
     chrome.storage.local.set(o);
   });
-}
 
-//Load the app
-function loadAndUseData() {
-  if (na_schedule != null && eu_schedule != null) {
-    console.log("League schedules loaded from cache!");
-    setCurWeek();
+  //League Select
+  $('#eu').click(function() {
+    showTab("eu", null);
+  });
 
-    if (USE_CACHE)
-      loadCachedMatches();
-    else
-      showTab(curLeague, curWeek);
-  } else {
-    $.when(
-      //NA Data
-      $.ajax({
-        url: API_SCHEDULE_ITEMS,
-        data: {
-          leagueId: NA_LEAGUE_ID
-        },
-        dataType: 'json',
-        method: 'GET'
-      }),
+  $('#na').click(function() {
+    showTab("na", null);
+  });
 
-      //EU Data
-      $.ajax({
-        url: API_SCHEDULE_ITEMS,
-        data: {
-          leagueId: EU_LEAGUE_ID
-        },
-        dataType: 'json',
-        method: 'GET'
-      })).then(
-      function(resp1, resp2) {
-        console.log("League schedules retrieved.");
+  /*//Week Select
+  for (var i = 1; i <= WEEKS_IN_LCS; i++) {
+    (function(i) {
+      $('#week' + i + '_select').click(function() {
+        showTab(null, i);
+      })
+    })(i);
+  }*/
 
-        //Show the schedule times and what teams play
-        getAndPopulateSchedule(resp1[0].scheduleItems, resp1[0].highlanderTournaments, "na");
-        getAndPopulateSchedule(resp2[0].scheduleItems, resp2[0].highlanderTournaments, "eu");
-
-        setCurWeek();   //Needs to be after schedules are set, because it relies on the match dates
-
-        if (USE_CACHE)
-          loadCachedMatches();
-        else
-          showTab(curLeague, curWeek);
-      },
-      function(resp1, resp2) {
-        alert('failure');
+  /*//Game Select
+  //Assumes elements all in order
+  days = $('.naDay,.euDay');
+  for (var i = 0; i < days.length; i++) {
+    matches = $(days[i]).find('.naMatch,.euMatch');
+    for (var j = 0; j < matches.length; j++) {
+      games = $(matches[j]).find('.naGame,.euGame');
+      for (var k = 0; k < games.length; k++) {
+        (function(dayNum, matchNum, gameNum) {
+          $(games[gameNum]).click(function() {
+            getAndShowMatch(dayNum, matchNum, gameNum);
+          })
+        })(i, j, k);
       }
-    );
-  }
+    }
+  }*/
 }
 
 //Start Here
 document.addEventListener('DOMContentLoaded', function() {
-  curLeague = "na";
   initListeners();
 
-  //Load settings from cache, then set up the rest of the data
-  loadAllFromCache();
+  if (USE_CACHE)
+    loadAllFromCache();
+  else
+    loadAndUseData();
 });

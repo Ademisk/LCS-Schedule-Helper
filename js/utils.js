@@ -1,50 +1,52 @@
+// @flow
+
 var weekday = new Array(7);
-weekday[0]=  "Sunday";
-weekday[1] = "Monday";
-weekday[2] = "Tuesday";
-weekday[3] = "Wednesday";
-weekday[4] = "Thursday";
-weekday[5] = "Friday";
-weekday[6] = "Saturday";
+weekday[0]="Sunday";
+weekday[1] ="Monday";
+weekday[2] ="Tuesday";
+weekday[3] ="Wednesday";
+weekday[4] ="Thursday";
+weekday[5] ="Friday";
+weekday[6] ="Saturday";
 
 var month = new Array(12);
-month[0]=  "January";
-month[1] = "February";
-month[2] = "March";
-month[3] = "April";
-month[4] = "May";
-month[5] = "June";
-month[6] = "July";
-month[7] = "August";
-month[8] = "September";
-month[9] = "October";
-month[10] = "November";
-month[11] = "December";
+month[0]="January";
+month[1] ="February";
+month[2] ="March";
+month[3] ="April";
+month[4] ="May";
+month[5] ="June";
+month[6] ="July";
+month[7] ="August";
+month[8] ="September";
+month[9] ="October";
+month[10] ="November";
+month[11] ="December";
 
 var teamIcon = {
 	//NA
-	APX: "/teamIcons/NA/apx.png",
-	C9: "/teamIcons/NA/c9.png",
-	CLG: "/teamIcons/NA/clg.png",
-	NV: "/teamIcons/NA/nv.png",
-	FOX: "/teamIcons/NA/fox.png",
-	IMT: "/teamIcons/NA/imt.png",
-	NRG: "/teamIcons/NA/nrg.png",
-	P1: "/teamIcons/NA/p1.png",
-	TL: "/teamIcons/NA/tl.png",
-	TSM: "/teamIcons/NA/tsm.png",
+	APX:"/teamIcons/NA/apx.png",
+	C9:"/teamIcons/NA/c9.png",
+	CLG:"/teamIcons/NA/clg.png",
+	NV:"/teamIcons/NA/nv.png",
+	FOX:"/teamIcons/NA/fox.png",
+	IMT:"/teamIcons/NA/imt.png",
+	NRG:"/teamIcons/NA/nrg.png",
+	P1:"/teamIcons/NA/p1.png",
+	TL:"/teamIcons/NA/tl.png",
+	TSM:"/teamIcons/NA/tsm.png",
 
 	//EU
-	FNC: "/teamIcons/EU/fnc.png",
-	G2: "/teamIcons/EU/g2.png",
-	GIA: "/teamIcons/EU/gia.png",
-	H2K: "/teamIcons/EU/h2k.png",
-	OG: "/teamIcons/EU/og.png",
-	ROC: "/teamIcons/EU/roc.png",
-	S04: "/teamIcons/EU/s04.png",
-	SPY: "/teamIcons/EU/spy.png",
-	UOL: "/teamIcons/EU/uol.png",
-	VIT: "/teamIcons/EU/vit.png"
+	FNC:"/teamIcons/EU/fnc.png",
+	G2:"/teamIcons/EU/g2.png",
+	GIA:"/teamIcons/EU/gia.png",
+	H2K:"/teamIcons/EU/h2k.png",
+	OG:"/teamIcons/EU/og.png",
+	ROC:"/teamIcons/EU/roc.png",
+	S04:"/teamIcons/EU/s04.png",
+	SPY:"/teamIcons/EU/spy.png",
+	UOL:"/teamIcons/EU/uol.png",
+	VIT:"/teamIcons/EU/vit.png"
 };
 
 var champIcon = {
@@ -74,11 +76,11 @@ var SECS_IN_DAY = 86400;
 
 //Calculate team and player fantasy pts
 function calculateFantasyPts(match) {
-	for (var i = 0; i < match.games.length && match.games[i].result == "resolved"; i++) {
+	for (var i = 0; i < match.games.length && match.games[i].result =="resolved"; i++) {
 		//Team 1
 		//Team 1 fantasy pts per game
 		var gameStats = match.games[i].team1_stats;
-		gameStats.stats.f_pts = round((gameStats.result == "Win" ? WIN_PTS : 0) + gameStats.stats.barons_killed * BARON_KILLS_PTS 
+		gameStats.stats.f_pts = round((gameStats.result =="Win" ? WIN_PTS : 0) + gameStats.stats.barons_killed * BARON_KILLS_PTS 
 			+ gameStats.stats.dragons_killed * DRAGON_KILLS_PTS + (gameStats.stats.first_blood ? FIRST_BLOOD_PTS : 0) 
 			+ (gameStats.stats.won_under_30 ? WIN_UNDER_30_PTS : 0) + gameStats.stats.towers_destroyed * TOWERS_DESTROYED_PTS);
 
@@ -98,7 +100,7 @@ function calculateFantasyPts(match) {
 			//Player fantasy pts combined (first 2 games)
 			if (i < 2) {
 				var matchPlayer = match.team1_roster[key];
-				if (matchPlayer.name == "") {
+				if (matchPlayer.name =="") {
 					matchPlayer.name = player.name;
 					matchPlayer.champion = player.champion;
 				}
@@ -116,7 +118,7 @@ function calculateFantasyPts(match) {
 		//Team 2
 		//Team 2 fantasy pts per game
 		var gameStats2 = match.games[i].team2_stats;
-		gameStats2.stats.f_pts = round((gameStats2.result == "Win" ? WIN_PTS : 0) + gameStats2.stats.barons_killed * BARON_KILLS_PTS 
+		gameStats2.stats.f_pts = round((gameStats2.result =="Win" ? WIN_PTS : 0) + gameStats2.stats.barons_killed * BARON_KILLS_PTS 
 			+ gameStats2.stats.dragons_killed * DRAGON_KILLS_PTS + (gameStats2.stats.first_blood ? FIRST_BLOOD_PTS : 0) 
 			+ (gameStats2.stats.won_under_30 ? WIN_UNDER_30_PTS : 0) + gameStats2.stats.towers_destroyed * TOWERS_DESTROYED_PTS);
 
@@ -136,7 +138,7 @@ function calculateFantasyPts(match) {
 			//Player fantasy pts combined (first 2 games)
 			if (i < 2) {
 				var matchPlayer2 = match.team2_roster[key];
-				if (matchPlayer2.name == "") {
+				if (matchPlayer2.name =="") {
 					matchPlayer2.name = player2.name;
 					matchPlayer2.champion = player2.champion;
 				}
@@ -153,7 +155,7 @@ function calculateFantasyPts(match) {
 	}
 }
 
-function sortMatches(a, b) {
+function sortScheduleItems(a, b) {
 	return (new Date(a['scheduledTime'])).getTime() - (new Date(b['scheduledTime'])).getTime();
 }
 
@@ -164,13 +166,19 @@ function sortGames(a, b) {
 function padZeros(num, size) {
 	var n = num.toString();
 	while (n.length < size)
-		n = "0" + n;
+		n ="0" + n;
 
 	return n;
 }
 
 function round(p) {
 	return parseFloat(parseFloat(p).toFixed(2));
+}
+
+function computeDayDate(d, day) {
+	var dt = new Date(d);
+
+    return weekday[dt.getDay()] + ', ' + month[dt.getMonth()] + ' ' + dt.getDate() + ' - Day ' + day;
 }
 
 //========================================================================
@@ -284,7 +292,7 @@ function loadCachedSchedule() {
 function saveScheduleIntoCache(schedule, league) {
 	var o = {};
 
-	if (league == "na")
+	if (league =="na")
 		o["na_schedule"] = schedule;
 	else
 		o["eu_schedule"] = schedule;
@@ -305,23 +313,23 @@ function loadCachedMatches() {
 	for (var i = 0; i < WEEKS_IN_LCS; i++) {
 		for (var j = 0; j < NA_DAYS_PER_WEEK; j++) {
 			for (var k = 0; k < na_schedule[i].days[j].matches.length; k++) {
-				bKeyNA = "na-" + (i + 1) + "-" + (j + 1) + "-" + (k + 1);
-				//o.push(bKeyNA + "-match_id");
-				o.push(bKeyNA + "-state");
-				o.push(bKeyNA + "-scheduled_time");
-				o.push(bKeyNA + "-scheduled_time_milliseconds");
-				o.push(bKeyNA + "-load_status");
+				bKeyNA ="na-" + (i + 1) +"-" + (j + 1) +"-" + (k + 1);
+				//o.push(bKeyNA +"-match_id");
+				o.push(bKeyNA +"-state");
+				o.push(bKeyNA +"-scheduled_time");
+				o.push(bKeyNA +"-scheduled_time_milliseconds");
+				o.push(bKeyNA +"-load_status");
 
 				var gamesPerMatch = NA_GAMES_PER_MATCH;
 
 				for (var l = 0; l < gamesPerMatch; l++) {
-					o.push(bKeyNA + "-game" + (l + 1));
+					o.push(bKeyNA +"-game" + (l + 1));
 				}
 
-				o.push(bKeyNA + "-team1");
-				o.push(bKeyNA + "-team2");
-				o.push(bKeyNA + "-team1_roster");
-				o.push(bKeyNA + "-team2_roster");
+				o.push(bKeyNA +"-team1");
+				o.push(bKeyNA +"-team2");
+				o.push(bKeyNA +"-team1_roster");
+				o.push(bKeyNA +"-team2_roster");
 			}
 		}
 	}
@@ -330,23 +338,23 @@ function loadCachedMatches() {
 	for (var i = 0; i < WEEKS_IN_LCS; i++) {
 		for (var j = 0; j < EU_DAYS_PER_WEEK; j++) {
 			for (var k = 0; k < eu_schedule[i].days[j].matches.length; k++) {
-				bKeyEU = "eu-" + (i + 1) + "-" + (j + 1) + "-" + (k + 1);
-				//o.push(bKeyEU + "-match_id");
-				o.push(bKeyEU + "-state");
-				o.push(bKeyEU + "-scheduled_time");
-				o.push(bKeyEU + "-scheduled_time_milliseconds");
-				o.push(bKeyEU + "-load_status");
+				bKeyEU ="eu-" + (i + 1) +"-" + (j + 1) +"-" + (k + 1);
+				//o.push(bKeyEU +"-match_id");
+				o.push(bKeyEU +"-state");
+				o.push(bKeyEU +"-scheduled_time");
+				o.push(bKeyEU +"-scheduled_time_milliseconds");
+				o.push(bKeyEU +"-load_status");
 
 				var gamesPerMatch = EU_GAMES_PER_MATCH;
 
 				for (var l = 0; l < gamesPerMatch; l++) {
-					o.push(bKeyEU + "-game" + (l + 1));
+					o.push(bKeyEU +"-game" + (l + 1));
 				}
 
-				o.push(bKeyEU + "-team1");
-				o.push(bKeyEU + "-team2");
-				o.push(bKeyEU + "-team1_roster");
-				o.push(bKeyEU + "-team2_roster");
+				o.push(bKeyEU +"-team1");
+				o.push(bKeyEU +"-team2");
+				o.push(bKeyEU +"-team1_roster");
+				o.push(bKeyEU +"-team2_roster");
 			}
 		}
 	}
@@ -361,14 +369,14 @@ function loadCachedMatches() {
 
 		//weeks, days, matches, games assumed in order, since keys were added to o[] in order
 		$.each(items, function(key) {
-			league = key.replace(/([a-z]{2}).*/, "$1");
-			week = key.replace(/[a-z]{2}-(\d{1}).*/, "$1") - 1;
-			day = key.replace(/[a-z]{2}-\d{1}-(\d{1}).*/, "$1") - 1;
-			match = key.replace(/[a-z]{2}-\d{1}-\d{1}-(\d{1}).*/, "$1") - 1;
-			elem = key.replace(/[a-z]{2}-\d{1}-\d{1}-\d{1}-([a-z0-9_]+).*/, "$1");
+			league = key.replace(/([a-z]{2}).*/,"$1");
+			week = key.replace(/[a-z]{2}-(\d{1}).*/,"$1") - 1;
+			day = key.replace(/[a-z]{2}-\d{1}-(\d{1}).*/,"$1") - 1;
+			match = key.replace(/[a-z]{2}-\d{1}-\d{1}-(\d{1}).*/,"$1") - 1;
+			elem = key.replace(/[a-z]{2}-\d{1}-\d{1}-\d{1}-([a-z0-9_]+).*/,"$1");
 
 			var schedule;
-			if (league == "na")
+			if (league =="na")
 				schedule = na_schedule;
 			else
 				schedule = eu_schedule;
@@ -386,38 +394,38 @@ function loadCachedMatches() {
 }
 
 //Break up a match and cache it
-function saveMatchIntoCache(match, league, weekNum) {
-	var baseKey = league + "-" + weekNum + "-" + (match.match_day + 1) + "-" + (match.match_num + 1);
+function saveMatchIntoCache(match, league, blockName, weekNum) {
+	var baseKey = league +"-" + blockName +"-" + weekNum +"-" + (match.match_day + 1) +"-" + (match.match_num + 1);
 	//console.log('baseKey: ' + baseKey);
 
 	var o = {};
-	//o[baseKey + "-match_id"] = match.match_id;
-	o[baseKey + "-state"] = match.state;
-	o[baseKey + "-scheduled_time"] = match.scheduled_time;
-	o[baseKey + "-scheduled_time_milliseconds"] = match.scheduled_time_milliseconds;
-	o[baseKey + "-load_status"] = match.load_status;
+	//o[baseKey +"-match_id"] = match.match_id;
+	o[baseKey +"-state"] = match.state;
+	o[baseKey +"-scheduled_time"] = match.scheduled_time;
+	o[baseKey +"-scheduled_time_milliseconds"] = match.scheduled_time_milliseconds;
+	o[baseKey +"-load_status"] = match.load_status;
 	chrome.storage.local.set(o);
 
 	$.each(match.games, function(key) {
 		o = {};
-		o[baseKey + "-game" + (key + 1)] = match.games[key];
+		o[baseKey +"-game" + (key + 1)] = match.games[key];
 		chrome.storage.local.set(o);
 	});
 
 	o = {};
-	o[baseKey + "-team1"] = match.team1
+	o[baseKey +"-team1"] = match.team1
 	chrome.storage.local.set(o);
 
 	o = {};
-	o[baseKey + "-team2"] = match.team2
+	o[baseKey +"-team2"] = match.team2
 	chrome.storage.local.set(o);
 
 	o = {};
-	o[baseKey + "-team1_roster"] = match.team1_roster
+	o[baseKey +"-team1_roster"] = match.team1_roster
 	chrome.storage.local.set(o);
 
 	o = {};
-	o[baseKey + "-team2_roster"] = match.team2_roster
+	o[baseKey +"-team2_roster"] = match.team2_roster
 	chrome.storage.local.set(o);
 }
 
@@ -445,21 +453,149 @@ function loadAllFromCache() {
 
 //Set settings to object, and push up to the form
 function setSettings(items) {
-	if (typeof items["usabilitySettings"] !== "undefined") {
+	if (typeof items["usabilitySettings"] !=="undefined") {
 		extSettings.usability = items["usabilitySettings"];
 		$('#view_mode #' + extSettings.usability.view_mode).prop('checked', true);
 		$('#hide_results').prop('checked', extSettings.usability.hide_results);
 	}
 
-	if (typeof items["leagueSettings"] !== "undefined") {
+	if (typeof items["leagueSettings"] !=="undefined") {
 		extSettings.leagues = items["leagueSettings"];
 		$('#na_lcs_league').prop('checked', extSettings.leagues.na_lcs_league);
 		$('#eu_lcs_league').prop('checked', extSettings.leagues.eu_lcs_league);
 	}
 
-	if (typeof items["fantasySettings"] !== "undefined") {
+	if (typeof items["fantasySettings"] !=="undefined") {
 		extSettings.fantasy = items["fantasySettings"];
 		$('#show_fantasy_pts').prop('checked', extSettings.fantasy.show_fantasy_pts);
 		$('#fantasy_mode #' + extSettings.fantasy.fantasy_mode).prop('checked', true);
 	}
+}
+
+//=====================================
+// HTML components
+//=====================================
+
+function createBracketOptionHTML(id, selected) {
+	return `<option id="` + id + `" ` + selected + `>` + id + `</option>`;
+}
+
+function createWeekTabHTML(id) {
+	return `<div id="week` + id + `_select" class="weekTabSelect">` + id + `</div>`;
+}
+
+function createWeekScheduleHTML(week) {
+	var weekHtml ="";
+	for (var i = 0; i < week.days.length; i++) {
+		var matchHtml = "";
+		for (var j = 0; j < week.days[i].matches.length; j++) {
+			var matchGameTabs = "";
+			for (var k = 0; k < week.days[i].matches[j].games.length; k++) {
+				matchGameTabs += createMatchTabHTML(k + 1);
+			}
+			matchHtml += createMatchHTML(j + 1, week.days[i].matches[j].scheduled_time, matchGameTabs);
+		}
+		weekHtml += createDayHTML(i + 1, week.days[i].day_date, matchHtml);
+	}
+
+	return weekHtml;
+}
+
+function createDayHTML(index, dayDate, contents) {
+	return `<div id="day` + index + `" class="day">
+						<div id="date" class="date">` + dayDate + `</div>`
+							+ contents +
+					`</div>`;
+}
+
+function createMatchHTML(index, matchTime, gameTabs) {
+	return `<div id="match` + index + `" class="match">
+							<div id="match_header" class="matchHeader">
+								<div id="match_time" class="matchTime">` + matchTime + `</div>
+								<div id="games_tab" class="gamesTab">
+									<div id="matchOverview" class="gameOverview selected">All</div>`
+									 + gameTabs +
+								`</div>
+								<div id="results" class="results">
+									<div id="team1_results" class="team1Results"></div>
+									<div id="team2_results" class="team2Results"></div>
+								</div>
+								<div id="team_fantasy_points"></div>
+								<a href="" target="_blank" id="game_stream" class="vodLink button"></a>
+							</div>
+
+							<img id="team1_icon" class="teamIcon" />
+							<div id="team1_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+
+							<div class="vs">vs.</div>
+
+							<img id="team2_icon" class="teamIcon" />
+							<div id="team2_roster" class="teamRoster">
+								<div id="top" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="jungle" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="mid" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="ad" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+								<div id="support" class="playerRow">
+									<div id="champion_icon" class="championIcon"></div>
+									<div id="player_name" class="playerName"></div>
+									<div id="kda" class="kda"></div>
+									<div id="fantasy_pts" class="fantasyPts"></div>
+								</div>
+							</div>
+						</div>`;
+}
+
+function createMatchTabHTML(index) {
+	return `<div id="game` + index + `" class="gameTab unselected">` + index + `</div>`;
 }
